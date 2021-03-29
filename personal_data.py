@@ -1,9 +1,8 @@
 import random
 import string
 
-# TODO: Insert your login data here.
-email = ""
-password = ""
+email = "froztgal1996@mail.ru"
+password = "actonic1"
 
 first_names = ["Филипп", "Василий", "Пётр"]
 second_names = ["Панкратов", "Петров", "Иванов"]
