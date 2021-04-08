@@ -1,7 +1,7 @@
 import pytest
-from tests.base import BaseCase
-from ui.locators import basic_locators
-import personal_data
+from homework_1.tests.base import BaseCase
+from homework_1.ui.locators import basic_locators
+from homework_1 import personal_data
 
 
 class TestProfile(BaseCase):

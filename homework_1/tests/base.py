@@ -1,8 +1,8 @@
 import pytest
-from ui.locators import basic_locators
+from homework_1.ui.locators import basic_locators
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
-import personal_data
+from homework_1 import personal_data
 
 time_out = 10
 

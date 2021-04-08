@@ -15,7 +15,6 @@ def config(request):
 @pytest.fixture(scope='function')
 def driver(config):
     url = config['url']
-    # TODO: Insert executable path of chrome driver here.
     browser = webdriver.Chrome(executable_path='')
     browser.get(url)
     browser.maximize_window()

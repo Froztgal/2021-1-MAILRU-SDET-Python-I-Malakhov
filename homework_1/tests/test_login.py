@@ -1,5 +1,5 @@
 import pytest
-from tests.base import BaseCase
+from homework_1.tests.base import BaseCase
 
 
 class TestLogIn(BaseCase):
