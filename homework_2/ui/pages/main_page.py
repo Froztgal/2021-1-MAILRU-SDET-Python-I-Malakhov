@@ -19,6 +19,6 @@ class MainPage(BasePage):
         return CompanyCreationPage(self.driver)
 
     @allure.step('Going to Audience section page...')
-    def go_to_audience(self, ):
+    def go_to_audience(self):
         self.click(self.locators.AUDIENCE_LOCATOR)
         return AudiencePage(self.driver)

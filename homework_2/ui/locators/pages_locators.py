@@ -11,18 +11,14 @@ class AuthPageLocators:
     EMAIL_FIELD_LOCATOR = (By.NAME, 'email')
     PASSWORD_FIELD_LOCATOR = (By.NAME, 'password')
     LOGIN_LOCATOR_2 = (By.XPATH, "(//div[contains(text(), 'Войти')])[2]")
+    INVALID_DATA_1 = (By.XPATH, "//div[contains(text(), 'Введите email или телефон')]")
+    INVALID_DATA_2 = (By.XPATH, "//div[contains(text(), 'Invalid login or password')]")
 
 
 class MainPageLocators:
     # Section locators
     COMPANY_LOCATOR = (By.XPATH, "//a[@href=\"/dashboard\"]")
     AUDIENCE_LOCATOR = (By.XPATH, "//a[@href=\"/segments\"]")
-    # BILLING_LOCATOR = (By.XPATH, "//a[@href=\"/billing\"]")
-    # STATISTICS_LOCATOR = (By.XPATH, "//a[@href=\"/statistics\"]")
-    # PRO_LOCATOR = (By.XPATH, "//a[@href=\"/pro\"]")
-    # PROFILE_LOCATOR = (By.XPATH, "//a[@href=\"/profile\"]")
-    # TOOLS_LOCATOR = (By.XPATH, "//a[@href=\"/tools\"]")
-    # HELP_LOCATOR = (By.XPATH, "//a[@href=\"//target.my.com/help/advertisers/ru\"]")
 
     # Create company buttons
     CREATE_COMPANY_BUTTON_1 = (By.XPATH, "//a[@href='/campaign/new']")

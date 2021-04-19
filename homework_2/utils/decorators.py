@@ -1,7 +1,8 @@
 import time
 
 
-def wait(method, error=Exception, timeout=10, interval=0.5, check=False, **kwargs):
+def wait(method, error=Exception, timeout=10, interval=0.5, check=False,
+         **kwargs):
     st = time.time()
     last_exception = None
     while time.time() - st < timeout:
@@ -17,4 +18,5 @@ def wait(method, error=Exception, timeout=10, interval=0.5, check=False, **kwarg
             last_exception = e
         time.sleep(interval)
 
-    raise TimeoutError(f'Method {method.__name__} timeout in {timeout}sec with exception: "{last_exception}"')
+    raise error(f'Method {method.__name__} timeout in {timeout}se'
+                f'c with exception: "{last_exception}"')
