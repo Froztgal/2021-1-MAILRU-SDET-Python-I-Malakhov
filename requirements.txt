@@ -1,5 +1,7 @@
 pytest
-pytest-xdist
 selenium
+requests
+pytest-xdist
 allure-pytest
 webdriver-manager
+Appium-Python-Client
