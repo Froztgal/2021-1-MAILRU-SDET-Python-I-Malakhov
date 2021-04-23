@@ -3,16 +3,16 @@ from ui.pages.base_page import BasePage
 from ui.locators.locators_android import AboutAppPageANDROIDLocators
 
 
-class AboutAppPage(BasePage):
+# class AboutAppPage(BasePage):
+#
+#     def get_version(self):
+#         pass
+#
+#     def get_copyright(self):
+#         pass
 
-    def get_version(self):
-        pass
 
-    def get_copyright(self):
-        pass
-
-
-class AboutAppPageANDROID(AboutAppPage):
+class AboutAppPageANDROID(BasePage):
     locators = AboutAppPageANDROIDLocators()
 
     @allure.step("Получаем информацию о версии программы...")

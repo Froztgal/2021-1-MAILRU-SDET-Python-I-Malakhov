@@ -3,16 +3,16 @@ from ui.pages.base_page import BasePage
 from ui.locators.locators_android import MenuPageANDROIDLocators
 
 
-class MenuPage(BasePage):
+# class MenuPage(BasePage):
+#
+#     def go_to_news_settings(self):
+#         pass
+#
+#     def go_to_about_app(self):
+#         pass
 
-    def go_to_news_settings(self):
-        pass
 
-    def go_to_about_app(self):
-        pass
-
-
-class MenuPageANDROID(MenuPage):
+class MenuPageANDROID(BasePage):
     locators = MenuPageANDROIDLocators()
 
     @allure.step("Пролистываем до источника новостей и заходим в него...")

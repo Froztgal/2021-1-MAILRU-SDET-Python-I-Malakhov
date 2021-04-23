@@ -32,7 +32,7 @@ class TestApkAndroidMain(BaseCase):
 
 
 class TestApkAndroidSettings(BaseCase):
-
+    @pytest.mark.test
     @pytest.mark.AndroidUI
     def test_news_source(self):
         self.main_page.click_on_menu_button()
