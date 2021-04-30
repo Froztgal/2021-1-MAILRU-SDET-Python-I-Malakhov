@@ -1,7 +1,7 @@
 import allure
 import logging
 from selenium.webdriver import ActionChains
-from ui.locators.locators_web import BasePageLocators
+from ui.locators.locators_android import BasePageANDROIDLocators
 from selenium.webdriver.support.wait import WebDriverWait
 from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
@@ -20,7 +20,7 @@ class PageNotLoadedException(Exception):
 
 
 class BasePage(object):
-    locators = BasePageLocators()
+    locators = BasePageANDROIDLocators()
 
     def __init__(self, driver, config):
         self.driver = driver
@@ -29,9 +29,12 @@ class BasePage(object):
 
         logger.info(f'{self.__class__.__name__} page is opening...')
 
-
     def find(self, locator, timeout=BASE_TIMEOUT):
         return self.wait(timeout).until(EC.presence_of_element_located(locator))
+
+    def back(self, num):
+        for i in range(num):
+            self.driver.back()
 
     @property
     def action_chains(self):
@@ -41,10 +44,6 @@ class BasePage(object):
         if timeout is None:
             timeout = 5
         return WebDriverWait(self.driver, timeout=timeout)
-
-    def scroll_to(self, element):
-        self.driver.execute_script('arguments[0].scrollIntoView(true);', element)
-
 
     @allure.step('Clicking {locator}')
     def click_for_android(self, locator, timeout=None):

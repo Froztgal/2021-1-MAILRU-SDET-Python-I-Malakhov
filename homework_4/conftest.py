@@ -5,8 +5,6 @@ from ui.fixtures import *
 
 
 def pytest_addoption(parser):
-    # parser.addoption('--browser', default='chrome')
-    # parser.addoption('--url', default='https://en.wikipedia.org/')
     parser.addoption('--os', default='android')
     parser.addoption('--appium', default='http://127.0.0.1:4723/wd/hub')
     parser.addoption('--debug_log', action='store_true')

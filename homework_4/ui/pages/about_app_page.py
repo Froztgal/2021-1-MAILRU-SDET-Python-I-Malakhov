@@ -1,15 +1,8 @@
+import os
+import re
 import allure
 from ui.pages.base_page import BasePage
 from ui.locators.locators_android import AboutAppPageANDROIDLocators
-
-
-# class AboutAppPage(BasePage):
-#
-#     def get_version(self):
-#         pass
-#
-#     def get_copyright(self):
-#         pass
 
 
 class AboutAppPageANDROID(BasePage):
@@ -22,3 +15,9 @@ class AboutAppPageANDROID(BasePage):
     @allure.step("Получаем копирайт программы...")
     def get_copyright(self):
         return self.find(self.locators.ABOUT_COPYRIGHT_TEXT).text
+
+    @staticmethod
+    def get_app_version():
+        full_path = os.path.join(os.path.abspath(os.path.join(__file__, os.pardir)), 'apk', 'Marussia_v1.39.1.apk')
+        apk_name = full_path.split(os.path.sep)[-1]
+        return 'Версия ' + re.findall(r'Marussia_v(.+).apk', apk_name)[0]

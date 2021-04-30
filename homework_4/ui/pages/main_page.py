@@ -2,33 +2,6 @@ import allure
 from ui.pages.base_page import BasePage
 from ui.locators.locators_android import MainPageANDROIDLocators
 
-#
-# class MainPage(BasePage):
-#
-#     def click_on_keyboard_button(self):
-#         pass
-#
-#     def click_on_menu_button(self):
-#         pass
-#
-#     def type_in_search_field(self, text):
-#         pass
-#
-#     def click_on_search_button(self):
-#         pass
-#
-#     def hide_keyboard_button(self):
-#         pass
-#
-#     def find_and_swipe(self):
-#         pass
-#
-#     def click_on_suggestion(self):
-#         pass
-#
-#     def find_text(self, text):
-#         pass
-
 
 class MainPageANDROID(BasePage):
     locators = MainPageANDROIDLocators()
