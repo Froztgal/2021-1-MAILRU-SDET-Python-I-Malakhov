@@ -14,10 +14,11 @@ class MainPageANDROIDLocators(BasePageANDROIDLocators):
     NEEDED_SUGGESTION = (MobileBy.XPATH, '//android.widget.TextView[@text="численность населения россии"]')
     ASSISTANT_MENU_BUTTON = (MobileBy.ID, 'ru.mail.search.electroscope:id/assistant_menu_bottom')
     CHECK_NEWS = (MobileBy.ID, 'ru.mail.search.electroscope:id/player_track_name')
-    # STOP_PLAYER_BUTTON = (MobileBy.ID, 'ru.mail.search.electroscope:id/play_button')
+    CHECK_SUGGESTION = (MobileBy.XPATH, '//android.widget.TextView[@text="146 млн."]')
+    STOP_PLAYER_BUTTON = (MobileBy.ID, 'ru.mail.search.electroscope:id/play_button')
 
     @staticmethod
-    def math_expression_result_locator(query_string):
+    def result_locator(query_string):
         return MobileBy.XPATH, f'//android.widget.TextView[@text="{query_string}"]/../following-sibling::*[1]'
 
 
@@ -29,9 +30,10 @@ class MenuPageANDROIDLocators(BasePageANDROIDLocators):
                                            'ru.mail.search.electroscope:id/user_settings_field_new_sources_hint')
 
 
-class NewsSourcePageANDROIDLocators(BasePageANDROIDLocators):
+class NewsSourcePageANDROIDLocators(MainPageANDROIDLocators, MenuPageANDROIDLocators):
     NEEDED_NEWS_SOURCE = (MobileBy.XPATH, '//android.widget.TextView[@text="Вести FM"]')
     CHECK_NEEDED_NEWS_SOURCE = (MobileBy.XPATH, '//android.widget.TextView[@text="Вести FM"]/following-sibling::*[1]')
+    CHECK_NEWS = (MobileBy.ID, 'ru.mail.search.electroscope:id/player_track_name')
 
 
 class AboutAppPageANDROIDLocators(BasePageANDROIDLocators):

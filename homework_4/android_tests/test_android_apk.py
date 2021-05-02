@@ -7,21 +7,18 @@ class TestApkAndroidMain(BaseCase):
 
     @pytest.mark.AndroidUI
     def test_search(self):
-        self.main_page.find_text('Russia')
+        self.main_page.send_value_and_find_text('Russia')
         self.main_page.hide_keyboard_button()
         assert self.main_page.find(locators_android.MainPageANDROIDLocators.RESULT_HEADER).text == 'Россия'
         self.main_page.find_and_swipe()
         self.main_page.click_on_suggestion()
         self.main_page.find(locators_android.MainPageANDROIDLocators.NEEDED_SUGGESTION)
-        assert self.main_page.find(locators_android.MainPageANDROIDLocators.RESULT_HEADER).text == '146 млн.'
+        assert self.main_page.find(locators_android.MainPageANDROIDLocators.CHECK_SUGGESTION).text == '146 млн.'
 
     @pytest.mark.AndroidUI
     @pytest.mark.parametrize(
-        "a,b,sign",
+        "a, b, sign",
         [
-            pytest.param(
-                '2', '10', '**'
-            ),
             pytest.param(
                 '2', '10', '+'
             ),
@@ -29,13 +26,16 @@ class TestApkAndroidMain(BaseCase):
     )
     def test_math(self, a, b, sign):
         expression = a + sign + b
-        self.main_page.find_text(expression)
-        assert self.main_page.find(locators_android.MainPageANDROIDLocators.math_expression_result_locator(
-            expression)).text == str(eval(expression))
+        try:
+            expected_result = str(eval(expression))
+        except Exception as e:
+            raise e
+        result = self.main_page.send_value_and_find_text(expression, returnable=True)
+        assert result == expected_result
 
 
 class TestApkAndroidSettings(BaseCase):
-    @pytest.mark.test
+
     @pytest.mark.AndroidUI
     def test_news_source(self):
         self.news_source_page.choose_and_chek()

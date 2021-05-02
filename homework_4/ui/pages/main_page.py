@@ -7,10 +7,12 @@ class MainPageANDROID(BasePage):
     locators = MainPageANDROIDLocators()
 
     @allure.step("Ищем {text}...")
-    def find_text(self, text):
+    def send_value_and_find_text(self, text, returnable=False):
         self.click_for_android(self.locators.KEYBOARD_BUTTON)
         self.find(self.locators.SEARCH_FIELD).send_keys(text)
         self.click_for_android(self.locators.TEXT_INPUT_BUTTON)
+        if returnable:
+            return self.find(self.locators.result_locator(text)).text
 
     @allure.step("Нажимаем на кнопку открытия клавиатуры...")
     def click_on_keyboard_button(self):
