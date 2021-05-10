@@ -1,10 +1,19 @@
-from mysql.models import TypeReq, MostCommon, Biggest4xx, Top5xx
+from mysql.models import CountReq, TypeReq, MostCommon, Biggest4xx, Top5xx
 
 
 class MySQLBuilder:
 
     def __init__(self, client):
         self.client = client
+
+    def create_count_req(self, name, count):
+        count_req = CountReq(
+            name=name,
+            count=count,
+        )
+        self.client.session.add(count_req)
+        self.client.session.commit()  # no need if sessionmaker autocommit=True
+        return count_req
 
     def create_type_req(self, type_req, count):
         type_req = TypeReq(

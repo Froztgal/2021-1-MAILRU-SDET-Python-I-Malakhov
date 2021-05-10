@@ -42,6 +42,10 @@ class MysqlClient:
         self.execute_query(f'CREATE database {self.db_name}', fetch=False)
         self.connection.close()
 
+    def create_count_req(self):
+        if not inspect(self.engine).has_table('count_req'):
+            Base.metadata.tables['count_req'].create(self.engine)
+
     def create_type_req(self):
         if not inspect(self.engine).has_table('type_req'):
             Base.metadata.tables['type_req'].create(self.engine)

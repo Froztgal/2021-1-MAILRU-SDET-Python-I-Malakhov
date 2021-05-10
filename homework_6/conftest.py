@@ -16,6 +16,7 @@ def pytest_configure(config):
         mysql_client.recreate_db()
 
         mysql_client.connect()
+        mysql_client.create_count_req()
         mysql_client.create_type_req()
         mysql_client.create_most_common()
         mysql_client.create_biggest_4xx()

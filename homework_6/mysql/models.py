@@ -4,6 +4,22 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
+class CountReq(Base):
+    __tablename__ = 'count_req'
+    __table_args__ = {'mysql_charset': 'utf8'}
+
+    def __repr__(self):
+        return f"<CountReq(" \
+               f"id='{self.id}'," \
+               f"name='{self.name}', " \
+               f"count='{self.count}'" \
+               f")>"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(10), nullable=False)
+    count = Column(Integer, nullable=False)
+
+
 class TypeReq(Base):
     __tablename__ = 'type_req'
     __table_args__ = {'mysql_charset': 'utf8'}
