@@ -35,7 +35,7 @@ class TestMysql1(MySQLBase):
             self.type_req = self.mysql_builder.create_type_req(k, v)
 
     def test_type_req(self):
-        assert self.mysql.session.query(TypeReq).count() == 5
+        assert self.mysql.session.query(TypeReq).count() == len(parsed_data[1])
 
 
 class TestMysql2(MySQLBase):
@@ -46,7 +46,7 @@ class TestMysql2(MySQLBase):
             self.most_common = self.mysql_builder.create_most_common(k, v)
 
     def test_most_common(self):
-        assert self.mysql.session.query(MostCommon).count() == 10
+        assert self.mysql.session.query(MostCommon).count() == len(parsed_data[2])
 
 
 class TestMysql3(MySQLBase):
@@ -57,7 +57,7 @@ class TestMysql3(MySQLBase):
             self.biggest_4xx = self.mysql_builder.create_biggest_4xx(k, *v)
 
     def test_biggest_4xx(self):
-        assert self.mysql.session.query(Biggest4xx).count() == 5
+        assert self.mysql.session.query(Biggest4xx).count() == len(parsed_data[3])
 
 
 class TestMysql4(MySQLBase):
@@ -68,4 +68,4 @@ class TestMysql4(MySQLBase):
             self.top5_5xx = self.mysql_builder.create_top5_5xx(k, v)
 
     def test_top5_5xx(self):
-        assert self.mysql.session.query(Top5xx).count() == 5
+        assert self.mysql.session.query(Top5xx).count() == len(parsed_data[4])

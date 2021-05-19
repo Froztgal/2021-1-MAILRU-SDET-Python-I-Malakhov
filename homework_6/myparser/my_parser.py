@@ -56,7 +56,6 @@ def get_results():
                 dict_freq[datadict["url"]] = 1
 
             # Подсчет топ 5 самых больших по размеру запросов, которые завершились клиентской (4ХХ) ошибкой
-            # надо продумать как сортировать? помоему что-то ту не так
             if '400' <= datadict['statuscode'] < '500':
                 if datadict["bytessent"] in dict_4xx:
                     pass
@@ -75,20 +74,3 @@ def get_results():
         dict_5xx = top_n_values(dict_5xx, 5)
 
         return num_req, dict_common, dict_freq, dict_4xx, dict_5xx
-
-    # with open('result_python.txt', 'w') as rf:
-    #     rf.write('1 -- Общее количество запросов' + '\n')
-    #     rf.write(str(num_req) + '\n')
-    #     rf.write('2 -- Общее количество запросов по типу, например: GET - 20, POST - 10 и т.д.' + '\n')
-    #     rf.write(str(dict_common) + '\n')
-    #     rf.write('3 -- Топ 10 самых частых запросов' + '\n')
-    #     rf.write(str(dict_freq) + '\n')
-    #     rf.write('4 -- Топ 5 самых больших по размеру запросов, которые завершились клиентской (4ХХ) ошибкой' + '\n')
-    #     rf.write(str(dict_4xx) + '\n')
-    #     rf.write('Топ 5 пользователей по количеству запросов, которые завершились серверной (5ХХ) ошибкой' + '\n')
-    #     rf.write(str(dict_5xx) + '\n')
-
-    # if '--json' in sys.argv:
-    #     with open('result_python_json.json', 'w') as rfj:
-    #         dict_json = {1: num_req, 2: dict_common, 3: dict_freq, 4: dict_4xx, 5: dict_5xx}
-    #         json.dump(dict_json, rfj)
