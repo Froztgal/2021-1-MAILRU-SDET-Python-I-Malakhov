@@ -1,0 +1,28 @@
+1. Устанавливаю приложение в докер
+	docker load -i C:\Users\Ilya\PycharmProjects\2021-1-MAILRU-SDET-Python-I-Malakhov\FP\docker\myapp
+2. БД
+	В cmd: (Запустить БД в отдельном контейнере)
+		docker run --name test_sql -e MYSQL_ROOT_PASSWORD=pass -p 3306:3306 -d percona:latest
+	В CLI docker: (Зайти в поднятую БД под пользователем root и паролем ROOT_PASSWORD)
+		mysql -h127.0.0.1 -P3306 -uroot -ppass
+		CREATE DATABASE test_db;
+		USE test_db;
+		CREATE TABLE `test_users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `username` varchar(16) DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `email` varchar(64) NOT NULL,
+  `access` smallint DEFAULT NULL,
+  `active` smallint DEFAULT NULL,
+  `start_active_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `ix_test_users_username` (`username`)
+);
+		CREATE USER 'test_qa' IDENTIFIED BY 'qa_test';
+		GRANT ALL PRIVILEGES ON * . * TO 'test_qa';
+		FLUSH PRIVILEGES;
+3. Mock
+	docker run --name <VK_API_CONTAINER_NAME> -p <VK_API_PORT>:<VK_API_PORT> -d vk_api:latest
+4. Запуск myapp (config.txt скинуть на D в корень)
+	docker run --name mapp -v "/D/config.txt":"/D/config.txt" -p 8080:8080 --link test_sql:test_sql myapp /app/myapp --config="/D/config.txt"
