@@ -5,17 +5,30 @@ from ui.fixtures import *
 
 
 def pytest_addoption(parser):
-    parser.addoption('--url', default='https://target.my.com/')
+    parser.addoption('--url', default='http://172.17.0.4:8080')
     parser.addoption('--browser', default='chrome')
     parser.addoption('--debug_log', action='store_true')
+    parser.addoption('--selenoid', action='store_true')
+    parser.addoption('--vnc', action='store_true')
+    parser.addoption('--enable_video', action='store_true')
 
 
 @pytest.fixture(scope='session')
 def config(request):
     url = request.config.getoption('--url')
+    if request.config.getoption('--selenoid'):
+        selenoid = 'http://127.0.0.1:4444'
+        if request.config.getoption('--vnc'):
+            vnc = True
+        else:
+            vnc = False
+    else:
+        selenoid = None
+        vnc = False
     browser = request.config.getoption('--browser')
     debug_log = request.config.getoption('--debug_log')
-    return {'url': url, 'browser': browser, 'debug_log': debug_log}
+    enable_video = request.config.getoption('--enable_video')
+    return {'url': url, 'browser': browser, 'debug_log': debug_log, 'selenoid': selenoid, 'vnc': vnc, 'enable_video': enable_video}
 
 
 @pytest.fixture(scope='session')
@@ -38,12 +51,25 @@ def pytest_configure(config):
     config.base_test_dir = base_test_dir
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='function', autouse=True)
 def test_dir(request):
-    test_name = request._pyfuncitem.nodeid.replace('/', '_').replace(':', '_')
+    test_name = request._pyfuncitem.nodeid
+    prohibitted_chars = '\/|:*?"<>'
+    for char in prohibitted_chars:
+        test_name = test_name.replace(char, '_')
+    # test_name = request._pyfuncitem.nodeid.replace('/', '_').replace(':', '_').replace(':', '_')
     test_dir = os.path.join(request.config.base_test_dir, test_name)
     os.makedirs(test_dir)
     return test_dir
+
+
+@pytest.fixture(scope='session', autouse=True)
+def docker_app_ip(name='mapp'):
+    from docker import DockerClient
+    client = DockerClient()
+    container = client.containers.get(name)
+    ip_add = container.attrs['NetworkSettings']['IPAddress']
+    return ip_add
 
 
 @pytest.fixture(scope='function', autouse=True)

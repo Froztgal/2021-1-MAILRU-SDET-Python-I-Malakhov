@@ -6,10 +6,8 @@ from selenium.webdriver import ChromeOptions
 from ui.pages.base_page import BasePage
 from ui.pages.main_page import MainPage
 from ui.pages.auth_page import AuthPage
-from ui.pages.audience_page import AudiencePage
-from ui.pages.company_creation_page import CompanyCreationPage
+from ui.pages.reg_page import RegPage
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.firefox import GeckoDriverManager
 
 
 class UnsupportedBrowserType(Exception):
@@ -32,44 +30,51 @@ def auth_page(driver):
 
 
 @pytest.fixture
-def audience_page(driver):
-    return AudiencePage(driver=driver)
+def reg_page(driver):
+    return RegPage(driver=driver)
 
 
-@pytest.fixture
-def company_creation_page(driver):
-    return CompanyCreationPage(driver=driver)
+def get_driver(config, download_dir):
+    browser_name = config['browser']
+    selenoid = config['selenoid']
+    vnc = config['vnc']
+    enable_video = config['enable_video']
 
-
-def get_driver(browser_name, download_dir):
     if browser_name == 'chrome':
         options = ChromeOptions()
-        options.add_experimental_option("prefs", {"download.default_directory": download_dir})
-        manager = ChromeDriverManager(version='latest')
-        browser = webdriver.Chrome(executable_path=manager.install(), options=options)
-    elif browser_name == 'firefox':
-        manager = GeckoDriverManager(version='latest', log_level=0)  # set log_level=0 to disable logging
-        browser = webdriver.Firefox(executable_path=manager.install())
+
+        if selenoid is not None:
+            options.add_experimental_option("prefs", {"download.default_directory": '/home/selenoid/Downloads'})
+            options.add_experimental_option("prefs", {"profile.default_content_settings.popups": 0})
+            options.add_experimental_option("prefs", {"download.prompt_for_download": False})
+            caps = {'browserName': browser_name,
+                    'version': '89.0',
+                    'sessionTimeout': '2m'}
+
+            if vnc:
+                caps['version'] += '_vnc'
+                caps['enableVNC'] = True
+
+            if enable_video:
+                caps['enableVideo'] = True
+
+            browser = webdriver.Remote(selenoid + '/wd/hub', options=options, desired_capabilities=caps)
+
+        else:
+            options.add_experimental_option("prefs", {"download.default_directory": download_dir})
+            manager = ChromeDriverManager(version='latest', log_level=0)
+            browser = webdriver.Chrome(executable_path=manager.install(), options=options)
+
     else:
         raise UnsupportedBrowserType(f' Unsupported browser {browser_name}')
+
     return browser
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='function', autouse=True)
 def driver(config, test_dir):
     url = config['url']
-    browser_name = config['browser']
-    browser = get_driver(browser_name, download_dir=test_dir)
-    browser.get(url)
-    browser.maximize_window()
-    yield browser
-    browser.quit()
-
-
-@pytest.fixture(scope='function', params=['chrome', 'firefox'])
-def all_drivers(config, request, test_dir):
-    url = config['url']
-    browser = get_driver(request.param, download_dir=test_dir)
+    browser = get_driver(config, download_dir=test_dir)
     browser.get(url)
     browser.maximize_window()
     yield browser
@@ -90,3 +95,29 @@ def ui_report(driver, request, test_dir):
                 f.write(f"{i['level']} - {i['source']}\n{i['message']}\n\n")
         with open(browser_logfile, 'r') as f:
             allure.attach(f.read(), 'browser.log', attachment_type=allure.attachment_type.TEXT)
+
+
+def make_screenshot(request):
+    driver = request.getfixturevalue('driver')
+    test_dir = request.getfixturevalue('test_dir')
+    screenshot_file = os.path.join(test_dir, 'not_faded_failure.png')
+    driver.get_screenshot_as_file(screenshot_file)
+    allure.attach.file(screenshot_file, 'not_faded_failure.png', attachment_type=allure.attachment_type.PNG)
+
+# @pytest.fixture(scope='class')
+# def connect_to_db():
+#     from clients.db_client import MysqlClient
+#     client = MysqlClient()
+#     client.connect()
+#     yield client
+#     client.connection.close()
+
+
+@pytest.fixture(scope='class')
+def clear_reg_table():
+    from clients.db_client import MysqlClient
+    client = MysqlClient()
+    client.connect()
+    client.execute_query('truncate test_users;', False)
+    client.connection.close()
+

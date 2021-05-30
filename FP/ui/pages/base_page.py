@@ -1,10 +1,12 @@
 import logging
 import allure
+import pytest
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from ui.locators.pages_locators import BasePageLocators
+from _pytest.fixtures import FixtureRequest
 from utils.decorators import wait
 
 CLICK_RETRY = 3
@@ -17,25 +19,29 @@ class PageNotLoadedException(Exception):
 
 
 class BasePage(object):
-    url = 'https://target.my.com/'
+    url = 'http://172.17.0.4:8080'
     locators = BasePageLocators()
 
     def __init__(self, driver):
         self.driver = driver
         logger.info(f'{self.__class__.__name__} page is opening...')
-        assert self.is_opened()
+        self.is_complete()
+        # assert self.is_opened()
 
-    def is_opened(self):
-        def _check_url():
-            if self.driver.current_url != self.url:
-                raise PageNotLoadedException(
-                    f'{self.url} did not opened in {time_out} sec. for {self.__class__.__name__}.\n'
-                    f'Current url: {self.driver.current_url}.')
-            return True
-        return wait(_check_url, error=PageNotLoadedException, check=True, timeout=time_out, interval=0.1)
+    # def is_opened(self):
+    #     def _check_url():
+    #         if self.driver.current_url != self.url:
+    #             raise PageNotLoadedException(
+    #                 f'{self.url} did not opened in {time_out} sec. for {self.__class__.__name__}.\n'
+    #                 f'Current url: {self.driver.current_url}.')
+    #         return True
+    #     return wait(_check_url, error=PageNotLoadedException, check=True, timeout=time_out, interval=0.1)
 
     def find(self, locator, timeout=time_out):
         return self.wait(timeout).until(EC.presence_of_element_located(locator))
+
+    def find_hidden(self, locator):
+        return self.driver.execute_script(f"return document.getElementById('{locator}').innerHTML;")
 
     @property
     def action_chains(self):
@@ -73,8 +79,8 @@ class BasePage(object):
                 if i == CLICK_RETRY - 1:
                     raise
 
-    @allure.step('Uploading file {file_path} in {locator}')
-    def upload(self, locator, file_path, timeout=time_out):
-        logger.info(f'Uploading image ({file_path}) into {locator}...')
-        upload_field = self.find(locator, timeout)
-        upload_field.send_keys(file_path)
+    # @allure.step('Uploading file {file_path} in {locator}')
+    # def upload(self, locator, file_path, timeout=time_out):
+    #     logger.info(f'Uploading image ({file_path}) into {locator}...')
+    #     upload_field = self.find(locator, timeout)
+    #     upload_field.send_keys(file_path)

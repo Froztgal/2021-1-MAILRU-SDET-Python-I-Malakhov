@@ -2,6 +2,8 @@ import pytest
 from _pytest.fixtures import FixtureRequest
 from ui.pages.base_page import BasePage
 from ui.pages.auth_page import AuthPage
+from ui.pages.main_page import MainPage
+from ui.pages.reg_page import RegPage
 
 
 class BaseCase:
@@ -14,6 +16,8 @@ class BaseCase:
 
         self.base_page: BasePage = request.getfixturevalue('base_page')
         self.auth_page: AuthPage = request.getfixturevalue('auth_page')
+        self.main_page: MainPage = request.getfixturevalue('main_page')
+        self.reg_page: RegPage = request.getfixturevalue('reg_page')
 
         self.logger.debug('Initial setup done!')
 

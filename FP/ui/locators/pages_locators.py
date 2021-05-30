@@ -6,58 +6,46 @@ class BasePageLocators:
 
 
 class AuthPageLocators:
-    # Login locators
-    LOGIN_LOCATOR_1 = (By.XPATH, "//div[contains(text(), 'Войти')]")
-    EMAIL_FIELD_LOCATOR = (By.NAME, 'email')
-    PASSWORD_FIELD_LOCATOR = (By.NAME, 'password')
-    LOGIN_LOCATOR_2 = (By.XPATH, "(//div[contains(text(), 'Войти')])[2]")
-    INVALID_DATA_1 = (By.XPATH, "//div[contains(text(), 'Введите email или телефон')]")
-    INVALID_DATA_2 = (By.XPATH, "//div[contains(text(), 'Invalid login or password')]")
+    USERNAME_FIELD = (By.ID, "username")
+    PASSWORD_FIELD = (By.ID, "password")
+    LOGIN_BUTTON = (By.ID, "submit")
+    CREATE_ACCOUNT_BUTTON = (By.XPATH, "//a[@href=\"/reg\"]")
+    FLASH_FIELD = (By.ID, "flash")
 
 
 class MainPageLocators:
-    # Section locators
-    COMPANY_LOCATOR = (By.XPATH, "//a[@href=\"/dashboard\"]")
-    AUDIENCE_LOCATOR = (By.XPATH, "//a[@href=\"/segments\"]")
-
-    # Create company buttons
-    CREATE_COMPANY_BUTTON_1 = (By.XPATH, "//a[@href='/campaign/new']")
-    CREATE_COMPANY_BUTTON_2 = (By.XPATH, "//div[contains(text(), 'Создать кампанию')]")
-
-
-class CompanyCreationPageLocators:
-    TRAFIC_CONVERSION_BUTTON = (By.XPATH, "//div[contains(text(), 'Трафик')]")
-    URL_FIELD_1 = (By.XPATH, "//input[@placeholder='Введите ссылку']")
-    COMPANY_NAME_FIELD = (By.XPATH, "//div[@class='campaign-name']//input")
-    FORMAT_BUTTON = (By.ID, "patterns_4")
-    IMAGE_UPLOAD_BUTTON_0 = (By.XPATH, "//div[contains(text(), '240 × 400')]")
-    IMAGE_UPLOAD_BUTTON = (By.XPATH, "(//input[@type='file'])[2]")
-    IMAGE_SAVE_BUTTON = (By.XPATH, "//input[@value='Сохранить изображение']")
-    URL_FIELD_2 = (By.XPATH, "//input[@placeholder='Введите адрес ссылки']")
-    SUBMIT_BUTTON = (By.XPATH, "(//button[@data-class-name='Submit'])[2]")
-    FIND_FIELD = (By.XPATH, "//input[@placeholder='Поиск...']")
+    # Upper menu
+    HOME_BUTTON = (By.XPATH, "//a[@href=\"/\"]")
+    # Python
+    PYTHON_BUTTON_MAIN = (By.XPATH, "//a[@href=\"https://www.python.org/\"]")
+    PYTHON_BUTTON_SUB_HISTORY = (By.XPATH, "//a[@href=\"https://en.wikipedia.org/wiki/History_of_Python\"]")
+    PYTHON_BUTTON_SUB_FLASK = (By.XPATH, "//a[@href=\"https://flask.palletsprojects.com/en/1.1.x/#\"]")
+    # Linux
+    LINUX_BUTTON_MAIN = (By.XPATH, "//a[contains(text(), 'Linux')]")
+    LINUX_BUTTON_SUB_CENTOS = (By.XPATH, "//a[@href=\"https://getfedora.org/ru/workstation/download/\"]")
+    # Network
+    NETWORK_BUTTON_MAIN = (By.XPATH, "//a[contains(text(), 'Network')]")
+    NETWORK_BUTTON_SUB_WIRESHARK_NEWS = (By.XPATH, "//a[@href=\"https://www.wireshark.org/news/\"]")
+    NETWORK_BUTTON_SUB_WIRESHARK_DOWNLOAD = (By.XPATH, "//a[@href=\"https://www.wireshark.org/#download\"]")
+    NETWORK_BUTTON_SUB_TCP_DUMP = (By.XPATH, "//a[@href=\"https://hackertarget.com/tcpdump-examples/\"]")
+    LOGOUT_BUTTON = (By.XPATH, "//a[@href=\"/logout\"]")
 
     @staticmethod
-    def get_check_field_by_name(campaign_name):
-        return By.XPATH, f"//li[@title='{campaign_name}']"
+    def get_logged_user(username):
+        return By.XPATH, f"//li[contains(text(), 'Logged as {username}')]"
+
+    # MainFrame
+    API_BUTTON = (By.XPATH, "//img[@src=\"/static/images/laptop.png\"]")
+    INTERNET_BUTTON = (By.XPATH, "//img[@src=\"/static/images/loupe.png\"]")
+    SMTP_BUTTON = (By.XPATH, "//img[@src=\"/static/images/analytics.png\"]")
 
 
-class AudiencePageLocators(BasePageLocators):
-    CREATE_SEGMENT_BUTTON_1 = (By.XPATH, "//a[@href='/segments/segments_list/new/']")
-    CREATE_SEGMENT_BUTTON_2 = (By.XPATH, "//div[contains(text(), 'Создать')]")
-    CHECKBOX_1 = (By.XPATH, "//input[@type='checkbox']")
-    ADD_SEGMENT_BUTTON = (By.XPATH, "(//button[@data-class-name='Submit'])[2]")
-    NAME_FIELD = (By.XPATH, "//input[@maxlength='60']")
-    FINALLY_CREATE_SEGMENT_BUTTON = (By.XPATH, "//button[@data-class-name='Submit']")
-    ACTION_BUTTON = (By.XPATH, "//span[contains(text(), 'Действия')]")
-    DELETE_BUTTON = (By.XPATH, "//li[contains(text(), 'Удалить')]")
-    FIND_FIELD = (By.XPATH, "//input[@placeholder='Поиск по названию или id...']")
-
-    @staticmethod
-    def get_check_field_by_name(segment_name):
-        return By.XPATH, f"//li[contains(text(), '{segment_name}')]"
-
-    @staticmethod
-    def get_checkbox_by_id(segment_id):
-        return By.XPATH, f"//span[contains(text(), '{segment_id}')]/preceding-sibling::input"
-
+class RegisterPageLocators:
+    USERNAME_FIELD = (By.ID, "username")
+    EMAIL_FIELD = (By.ID, "email")
+    PASSWORD_FIELD = (By.ID, "password")
+    CONFIRM_PASSWORD_FIELD = (By.ID, "confirm")
+    CONFIRM_CHECKBOX = (By.ID, "term")
+    REGISTER_BUTTON = (By.ID, "submit")
+    LOGIN_BUTTON = (By.XPATH, "//a[@href=\"/login\"]")
+    FLASH_FIELD = (By.ID, "flash")
