@@ -5,7 +5,7 @@ from ui.locators.pages_locators import AuthPageLocators
 
 class AuthPage(BasePage):
 
-    url = BasePage.url
+    url = super(BasePage).url
     locators = AuthPageLocators()
 
     @allure.step('Going to Create account page...')

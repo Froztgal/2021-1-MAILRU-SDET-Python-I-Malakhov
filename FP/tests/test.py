@@ -16,20 +16,20 @@ from _pytest.fixtures import FixtureRequest
 from ui.fixtures import *
 
 
-def get_app_ip_from_docker(name='mapp'):
-    from docker import DockerClient
-    client = DockerClient()
-    container = client.containers.get(name)
-    ip_add = container.attrs['NetworkSettings']['IPAddress']
-    return ip_add
+# def get_app_ip_from_docker(name='mapp'):
+#     from docker import DockerClient
+#     client = DockerClient()
+#     container = client.containers.get(name)
+#     ip_add = container.attrs['NetworkSettings']['IPAddress']
+#     return ip_add
 
 
 class TestCreateUser(BaseCase):
     def test_basic(self, request: FixtureRequest, username='username', password='password', email='ab@c.d'):
-        ip_add = get_app_ip_from_docker()
-        self.driver.get(f'http://{ip_add}:8080')
+        # ip_add = get_app_ip_from_docker()
+        # self.driver.get(f'http://{ip_add}:8080')
         self.auth_page.go_to_create_account_page()
         self.reg_page.create_user(username, password, email)
         self.reg_page.is_complete()
-        make_screenshot(request)
+        # make_screenshot(request)
         assert self.driver.current_url == 'http://127.0.0.1:8080/welcome/'

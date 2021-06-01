@@ -5,7 +5,7 @@ from ui.locators.pages_locators import RegisterPageLocators
 
 class RegPage(BasePage):
 
-    url = BasePage.url + '/reg'
+    url = super(BasePage).url + '/reg'
     locators = RegisterPageLocators()
 
     @allure.step('Creating user...')

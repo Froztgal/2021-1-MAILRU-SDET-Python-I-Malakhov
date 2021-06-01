@@ -5,7 +5,7 @@ from ui.locators.pages_locators import MainPageLocators
 
 class MainPage(BasePage):
 
-    url = BasePage.url + '/welcome/'
+    url = super(BasePage).url + '/welcome/'
     locators = MainPageLocators()
 
     @allure.step('Logging out...')

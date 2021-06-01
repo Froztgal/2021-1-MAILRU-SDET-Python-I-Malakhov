@@ -19,10 +19,12 @@ class PageNotLoadedException(Exception):
 
 
 class BasePage(object):
-    url = 'http://172.17.0.4:8080'
+
+    # url = 'http://172.17.0.4:8080'
     locators = BasePageLocators()
 
-    def __init__(self, driver):
+    def __init__(self, request, driver):
+        self.url = request.config['url']
         self.driver = driver
         logger.info(f'{self.__class__.__name__} page is opening...')
         self.is_complete()

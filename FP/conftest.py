@@ -22,9 +22,14 @@ def config(request):
             vnc = True
         else:
             vnc = False
+        if request.config.getoption('--enable_video'):
+            enable_video = True
+        else:
+            enable_video = False
     else:
         selenoid = None
         vnc = False
+        enable_video = False
     browser = request.config.getoption('--browser')
     debug_log = request.config.getoption('--debug_log')
     enable_video = request.config.getoption('--enable_video')
@@ -57,19 +62,49 @@ def test_dir(request):
     prohibitted_chars = '\/|:*?"<>'
     for char in prohibitted_chars:
         test_name = test_name.replace(char, '_')
-    # test_name = request._pyfuncitem.nodeid.replace('/', '_').replace(':', '_').replace(':', '_')
     test_dir = os.path.join(request.config.base_test_dir, test_name)
     os.makedirs(test_dir)
     return test_dir
 
 
 @pytest.fixture(scope='session', autouse=True)
-def docker_app_ip(name='mapp'):
+def docker_client():
     from docker import DockerClient
     client = DockerClient()
-    container = client.containers.get(name)
+    yield client
+    client.close()
+
+
+# Надо править
+@pytest.fixture(scope='session', autouse=True)
+def app_ip(docker_client, request, name='mapp'):
+    container = docker_client.containers.get(name)
     ip_add = container.attrs['NetworkSettings']['IPAddress']
+    request.config['url'] = ip_add
     return ip_add
+
+
+# Можно дергать логи и парсить их по времени
+@pytest.fixture(scope='session', autouse=True)
+def docker_logs(docker_client, name='mapp'):
+    container = docker_client.containers.get(name)
+    logs = container.logs()
+    return logs
+
+
+@pytest.fixture(scope='session', autouse=True)
+def db_client():
+    from clients.db_client import MysqlClient
+    client = MysqlClient()
+    client.connect()
+    yield client
+    client.connection.close()
+
+
+@pytest.fixture(scope='session')
+def clear_table(db_client):
+    yield
+    db_client.execute_query('truncate test_users;', False)
 
 
 @pytest.fixture(scope='function', autouse=True)

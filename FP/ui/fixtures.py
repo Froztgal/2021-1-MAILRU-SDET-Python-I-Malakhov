@@ -97,27 +97,11 @@ def ui_report(driver, request, test_dir):
             allure.attach(f.read(), 'browser.log', attachment_type=allure.attachment_type.TEXT)
 
 
-def make_screenshot(request):
-    driver = request.getfixturevalue('driver')
-    test_dir = request.getfixturevalue('test_dir')
-    screenshot_file = os.path.join(test_dir, 'not_faded_failure.png')
-    driver.get_screenshot_as_file(screenshot_file)
-    allure.attach.file(screenshot_file, 'not_faded_failure.png', attachment_type=allure.attachment_type.PNG)
+# def make_screenshot(request):
+#     driver = request.getfixturevalue('driver')
+#     test_dir = request.getfixturevalue('test_dir')
+#     screenshot_file = os.path.join(test_dir, 'not_faded_failure.png')
+#     driver.get_screenshot_as_file(screenshot_file)
+#     allure.attach.file(screenshot_file, 'not_faded_failure.png', attachment_type=allure.attachment_type.PNG)
 
-# @pytest.fixture(scope='class')
-# def connect_to_db():
-#     from clients.db_client import MysqlClient
-#     client = MysqlClient()
-#     client.connect()
-#     yield client
-#     client.connection.close()
-
-
-@pytest.fixture(scope='class')
-def clear_reg_table():
-    from clients.db_client import MysqlClient
-    client = MysqlClient()
-    client.connect()
-    client.execute_query('truncate test_users;', False)
-    client.connection.close()
 
