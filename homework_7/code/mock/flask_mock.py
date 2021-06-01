@@ -1,6 +1,8 @@
+import json
+
 import settings
 import threading
-from flask import Flask, jsonify, request
+from flask import Flask, request
 
 
 app = Flask(__name__)
@@ -10,27 +12,28 @@ SURNAME_DATA = {}
 @app.route('/get_surname/<name>', methods=['GET'])
 def get_user_surname(name):
     if surname := SURNAME_DATA.get(name):
-        return jsonify(surname), 200
+        return json.dumps({'surname': surname}), 200
     else:
-        return jsonify(f'Surname for user {name} not fount'), 404
+        return json.dumps(f'Surname for user {name} not fount'), 404
 
 
-@app.route('/put_surname/<name>', methods=['GET'])
+@app.route('/put_surname/<name>', methods=['PUT'])
 def put_user_surname(name):
     if name in SURNAME_DATA.keys():
-        SURNAME_DATA[name] = 'new_surname'
-        return jsonify(name, SURNAME_DATA[name]), 200
+        new_surname = request.get_json()['surname']
+        SURNAME_DATA[name] = new_surname
+        return json.dumps({name: SURNAME_DATA[name]}), 200
     else:
-        return jsonify(f'User {name} not fount'), 404
+        return json.dumps(f'User {name} not fount'), 404
 
 
-@app.route('/delete_surname/<name>', methods=['GET'])
+@app.route('/delete_surname/<name>', methods=['DELETE'])
 def delete_user_surname(name):
     if name in SURNAME_DATA.keys():
         del SURNAME_DATA[name]
-        return jsonify(name), 200
+        return json.dumps({'name': name}), 200
     else:
-        return jsonify(f'User surname not fount for {name}'), 404
+        return json.dumps(f'User surname not fount for {name}'), 404
 
 
 def run_mock():
@@ -51,4 +54,4 @@ def shutdown_mock():
 @app.route('/shutdown')
 def shutdown():
     shutdown_mock()
-    return jsonify(f'OK, exiting'), 200
+    return json.dumps('OK, exiting!'), 200
