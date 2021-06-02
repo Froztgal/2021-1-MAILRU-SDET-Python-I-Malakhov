@@ -1,12 +1,16 @@
 import allure
+import pytest
+
 from ui.pages.base_page import BasePage
 from ui.locators.pages_locators import RegisterPageLocators
 
 
 class RegPage(BasePage):
 
-    url = super(BasePage).url + '/reg'
-    locators = RegisterPageLocators()
+    def __init__(self, driver, base_url):
+        super(RegPage, self).__init__(driver, base_url)
+        self.url += 'reg/'
+        self.locators = RegisterPageLocators()
 
     @allure.step('Creating user...')
     def create_user(self, username, password, email, re_password=None, chekbox=True):
@@ -20,13 +24,13 @@ class RegPage(BasePage):
         if chekbox:
             self.click(self.locators.CONFIRM_CHECKBOX)
         self.click(self.locators.REGISTER_BUTTON)
-        return MainPage(self.driver)
+        return MainPage(self.driver, self.base_url)
 
     @allure.step('Going to Logging page...')
     def go_to_login_page(self):
         from ui.pages.auth_page import AuthPage
         self.click(self.locators.LOGIN_BUTTON)
-        return AuthPage(self.driver)
+        return AuthPage(self.driver, self.base_url)
 
     @allure.step('Reading flash information...')
     def get_flash_information(self):

@@ -5,19 +5,21 @@ from ui.locators.pages_locators import MainPageLocators
 
 class MainPage(BasePage):
 
-    url = super(BasePage).url + '/welcome/'
-    locators = MainPageLocators()
+    def __init__(self, driver, base_url):
+        super(MainPage, self).__init__(driver, base_url)
+        self.url += 'welcome/'
+        self.locators = MainPageLocators()
 
     @allure.step('Logging out...')
     def go_to_login_page(self):
         from ui.pages.auth_page import AuthPage
         self.click(self.locators.LOGOUT_BUTTON)
-        return AuthPage(self.driver)
+        return AuthPage(self.driver, self.base_url)
 
     @allure.step('Going to Home page...')
     def go_to_home_page(self):
         self.click(self.locators.HOME_BUTTON)
-        return MainPage(self.driver)
+        return MainPage(self.driver, self.base_url)
 
     @allure.step('Going to Python main page...')
     def go_to_python_main_page(self):

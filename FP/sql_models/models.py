@@ -5,6 +5,7 @@ Base = declarative_base()
 
 
 class TestUsers(Base):
+    __test__ = False
     __tablename__ = 'test_users'
     __table_args__ = {'mysql_charset': 'utf8'}
 

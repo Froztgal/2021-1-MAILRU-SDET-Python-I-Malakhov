@@ -5,6 +5,8 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+
+import conftest
 from ui.locators.pages_locators import BasePageLocators
 from _pytest.fixtures import FixtureRequest
 from utils.decorators import wait
@@ -20,24 +22,13 @@ class PageNotLoadedException(Exception):
 
 class BasePage(object):
 
-    # url = 'http://172.17.0.4:8080'
-    locators = BasePageLocators()
-
-    def __init__(self, request, driver):
-        self.url = request.config['url']
+    def __init__(self, driver, base_url):
+        self.base_url = base_url
+        self.url = base_url
         self.driver = driver
+        self.locators = BasePageLocators()
         logger.info(f'{self.__class__.__name__} page is opening...')
         self.is_complete()
-        # assert self.is_opened()
-
-    # def is_opened(self):
-    #     def _check_url():
-    #         if self.driver.current_url != self.url:
-    #             raise PageNotLoadedException(
-    #                 f'{self.url} did not opened in {time_out} sec. for {self.__class__.__name__}.\n'
-    #                 f'Current url: {self.driver.current_url}.')
-    #         return True
-    #     return wait(_check_url, error=PageNotLoadedException, check=True, timeout=time_out, interval=0.1)
 
     def find(self, locator, timeout=time_out):
         return self.wait(timeout).until(EC.presence_of_element_located(locator))

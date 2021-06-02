@@ -15,23 +15,23 @@ class UnsupportedBrowserType(Exception):
 
 
 @pytest.fixture
-def base_page(driver):
-    return BasePage(driver=driver)
+def base_page(driver, app_url):
+    return BasePage(driver=driver, base_url=app_url)
 
 
 @pytest.fixture
-def main_page(driver):
-    return MainPage(driver=driver)
+def main_page(driver, app_url):
+    return MainPage(driver=driver, base_url=app_url)
 
 
 @pytest.fixture
-def auth_page(driver):
-    return AuthPage(driver=driver)
+def auth_page(driver, app_url):
+    return AuthPage(driver=driver, base_url=app_url)
 
 
 @pytest.fixture
-def reg_page(driver):
-    return RegPage(driver=driver)
+def reg_page(driver, app_url):
+    return RegPage(driver=driver, base_url=app_url)
 
 
 def get_driver(config, download_dir):
@@ -72,10 +72,9 @@ def get_driver(config, download_dir):
 
 
 @pytest.fixture(scope='function', autouse=True)
-def driver(config, test_dir):
-    url = config['url']
+def driver(config, test_dir, app_url):
     browser = get_driver(config, download_dir=test_dir)
-    browser.get(url)
+    browser.get(app_url)
     browser.maximize_window()
     yield browser
     browser.quit()

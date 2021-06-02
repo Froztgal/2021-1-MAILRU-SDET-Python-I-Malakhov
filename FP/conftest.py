@@ -5,7 +5,6 @@ from ui.fixtures import *
 
 
 def pytest_addoption(parser):
-    parser.addoption('--url', default='http://172.17.0.4:8080')
     parser.addoption('--browser', default='chrome')
     parser.addoption('--debug_log', action='store_true')
     parser.addoption('--selenoid', action='store_true')
@@ -15,7 +14,6 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope='session')
 def config(request):
-    url = request.config.getoption('--url')
     if request.config.getoption('--selenoid'):
         selenoid = 'http://127.0.0.1:4444'
         if request.config.getoption('--vnc'):
@@ -33,7 +31,7 @@ def config(request):
     browser = request.config.getoption('--browser')
     debug_log = request.config.getoption('--debug_log')
     enable_video = request.config.getoption('--enable_video')
-    return {'url': url, 'browser': browser, 'debug_log': debug_log, 'selenoid': selenoid, 'vnc': vnc, 'enable_video': enable_video}
+    return {'browser': browser, 'debug_log': debug_log, 'selenoid': selenoid, 'vnc': vnc, 'enable_video': enable_video}
 
 
 @pytest.fixture(scope='session')
@@ -67,7 +65,7 @@ def test_dir(request):
     return test_dir
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture
 def docker_client():
     from docker import DockerClient
     client = DockerClient()
@@ -75,21 +73,11 @@ def docker_client():
     client.close()
 
 
-# Надо править
-@pytest.fixture(scope='session', autouse=True)
-def app_ip(docker_client, request, name='mapp'):
+@pytest.fixture
+def app_url(docker_client, name='mapp'):
     container = docker_client.containers.get(name)
-    ip_add = container.attrs['NetworkSettings']['IPAddress']
-    request.config['url'] = ip_add
-    return ip_add
-
-
-# Можно дергать логи и парсить их по времени
-@pytest.fixture(scope='session', autouse=True)
-def docker_logs(docker_client, name='mapp'):
-    container = docker_client.containers.get(name)
-    logs = container.logs()
-    return logs
+    base_addr = f'http://{container.attrs["NetworkSettings"]["IPAddress"]}:8080/'
+    return base_addr
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -101,7 +89,7 @@ def db_client():
     client.connection.close()
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='session', autouse=True)
 def clear_table(db_client):
     yield
     db_client.execute_query('truncate test_users;', False)
