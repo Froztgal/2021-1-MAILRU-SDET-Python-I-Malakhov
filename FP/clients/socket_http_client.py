@@ -1,6 +1,6 @@
 import json
 import socket
-from mock_VK.mock_vk import MOCK_PORT, MOCK_HOST
+from mock_VK.mock_vk import MOCK_PORT
 
 
 class SocketClientHTTP:

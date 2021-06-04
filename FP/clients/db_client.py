@@ -27,7 +27,7 @@ class MysqlClient:
         self.connection = self.engine.connect()
         self.session = sessionmaker(bind=self.connection.engine,
                                     autocommit=False,  # use autocommit on session.add
-                                    expire_on_commit=False  # expire model after commit (requests data from database)
+                                    expire_on_commit=True  # expire model after commit (requests data from database)
                                     )()
 
     def execute_query(self, query, fetch=True):

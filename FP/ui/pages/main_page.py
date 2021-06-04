@@ -1,5 +1,4 @@
 import time
-
 import allure
 import logging
 import requests
@@ -107,13 +106,11 @@ class MainPage(BasePage):
 
     @allure.step('Searching for logged username...')
     def get_logged_username(self):
-        return self.find(self.locators.get_logged_user('superuser'))
+        return self.find(self.locators.LOGGED_USER)
 
-    # TODO: Не работает
     @allure.step('Searching for VK_ID...')
-    def get_vk_id(self, mock_url):
-        url = mock_url + 'vk_id_add/superuser'
-        requests.post(url, data={'vk_id': 1234567890})
+    def get_vk_id(self, socket_client, id):
+        url = 'vk_id_add/superuser'
+        socket_client.mock_post(url, jdata={'vk_id': id})
         self.driver.refresh()
-        time.sleep(20)
-        return self.find(self.locators.get_logged_user('superuser'))
+        return self.find(self.locators.VK_ID_FIELD)

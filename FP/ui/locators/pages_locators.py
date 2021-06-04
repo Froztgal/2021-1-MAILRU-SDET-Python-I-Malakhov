@@ -30,10 +30,8 @@ class MainPageLocators:
     NETWORK_BUTTON_SUB_TCP_DUMP = (By.XPATH, "//a[@href=\"https://hackertarget.com/tcpdump-examples/\"]")
     LOGOUT_BUTTON = (By.XPATH, "//a[@href=\"/logout\"]")
 
-    @staticmethod
-    def get_logged_user(username):
-        return By.XPATH, f"//li[contains(text(), 'Logged as {username}')]"
-
+    LOGGED_USER = (By.XPATH, f"//li[contains(text(), 'Logged as')]")
+    VK_ID_FIELD = (By.XPATH, "//li[contains(text(), 'VK ID')]")
     # MainFrame
     API_BUTTON = (By.XPATH, "//img[@src=\"/static/images/laptop.png\"]")
     INTERNET_BUTTON = (By.XPATH, "//img[@src=\"/static/images/loupe.png\"]")

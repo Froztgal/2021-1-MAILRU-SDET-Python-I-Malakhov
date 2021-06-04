@@ -4,9 +4,19 @@ from faker import Faker
 from tests.base import BaseCase
 from data import get_random_string
 from faker.providers import internet
+from sql_models.models import TestUsers
 
 fake = Faker()
 fake.add_provider(internet)
+
+
+@pytest.fixture
+def block_superuser(db_client):
+    db_client.session.query(TestUsers).filter(TestUsers.id == 1).update({TestUsers.access: 0})
+    db_client.session.commit()
+    yield db_client
+    db_client.session.query(TestUsers).filter(TestUsers.id == 1).update({TestUsers.access: 1})
+    db_client.session.commit()
 
 
 def pytest_generate_tests(metafunc):
@@ -23,6 +33,7 @@ def pytest_generate_tests(metafunc):
 class TestLogin(BaseCase):
 
     params = {
+        'test_login_blocked': [dict(username='superuser', password='superuser')],
         "test_login_data": [dict(username='username', password='password', email='ab@c.d', valid=True),
                             dict(username='', password='password', email=fake.email(), valid=False),
                             dict(username='1', password='password', email=fake.email(), valid=False),
@@ -43,6 +54,18 @@ class TestLogin(BaseCase):
                             dict(username=get_random_string(), password=fake.password(), email=' ab@c.d ', valid=False)
                             ]
     }
+
+    @allure.story('Тест на логин заблокированного пользователя c username: {username}, password: {password}.')
+    def test_login_blocked(self, ui_report, block_superuser, username, password):
+        """
+        Что тестирует - проверяет, что пользователь существующий в БД, но заблокированный, не может авторизоваться со
+        своими данными;
+        Шаги выполнения - ввод данных в поля на странице авторизации, проверка страницы;
+        Ожидаемый результат - пользователь не вошел на страницу авторизации и получил сообщение об ошибке.
+        """
+        self.auth_page.login(username, password)
+        assert self.driver.current_url == self.auth_page.url
+        assert self.auth_page.get_error_text() == 'Ваша учетная запись заблокирована'
 
     @allure.story('Тест на логин пользователя c username: {username}, password: {password}, email: {email}. Баг '
                   '- пользователь с невалидной почтой может войти, если такая почта как то попала в БД!')

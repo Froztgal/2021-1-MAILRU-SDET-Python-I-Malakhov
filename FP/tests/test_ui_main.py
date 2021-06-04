@@ -15,30 +15,33 @@ from sql_models.models import TestUsers
 from _pytest.fixtures import FixtureRequest
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def block_superuser(db_client):
     db_client.session.query(TestUsers).filter(TestUsers.id == 1).update({TestUsers.access: 0})
+    db_client.session.commit()
     yield db_client
-    db_client.session.query(TestUsers).filter(TestUsers.id == 1).update({TestUsers.access: 0})
+    db_client.session.query(TestUsers).filter(TestUsers.id == 1).update({TestUsers.access: 1})
+    db_client.session.commit()
 
 
 @allure.feature('Тесты главной страницы.')
 @pytest.mark.UI
 class TestMain(BaseCase):
 
-    # @pytest.mark.skip
+    @allure.story('Тест на разлогин забаненого пользователя, баг - в БД пользователь остается активен!')
     def test_main_logout_when_blocked(self, ui_report, login, block_superuser):
         """
         Что тестирует - проверяет, что авторизованный пользователь после блокировки, и обновления страницы вылетает
-        на страницу авторизации;
-        Шаги выполнения - блокировка авторизованного пользователя, обновление страницы, проверка страницы;
-        Ожидаемый результат - пользователь вылетел на страницу авторизации.
+        на страницу авторизации и в БД его активность становится равна 0;
+        Шаги выполнения - блокировка авторизованного пользователя, обновление страницы, проверка страницы, проверка БД;
+        Ожидаемый результат - пользователь вылетел на страницу авторизации, в БД его активность равна 0.
         """
         self.driver.refresh()
-        assert self.driver.current_url == self.auth_page.url
+        assert self.driver.current_url.find(self.auth_page.url) >= 0
+        assert block_superuser.session.query(TestUsers).filter(TestUsers.id == 1).first().active == 0
 
-    @pytest.mark.skip
-    def test_main_page_logout(self, ui_report, login):
+    @allure.story('Тест на разлогин пользователя через кнопку.')
+    def test_main_page_logout(self, ui_report, login, db_client):
         """
         Что тестирует - проверяет, что авторизованный пользователь после нажатия на кнопку Logout попадает на
         страницу авторизации;
@@ -47,8 +50,9 @@ class TestMain(BaseCase):
         """
         self.main_page.go_to_login_page()
         assert self.driver.current_url == self.auth_page.url
+        assert db_client.session.query(TestUsers).filter(TestUsers.id == 1).first().active == 0
 
-    @pytest.mark.skip
+    @allure.story('Тест на нажатие кнопки HOME.')
     def test_main_page_go_to_home_page(self, ui_report, login):
         """
         Что тестирует - проверяет, что пользователь после нажатия на кнопку HOME попадает на главную страницу;
@@ -58,7 +62,7 @@ class TestMain(BaseCase):
         self.main_page.go_to_home_page()
         assert self.driver.current_url == self.main_page.url
 
-    @pytest.mark.skip
+    @allure.story('Тест на нажатие кнопки Python.')
     def test_main_page_go_to_python_main_page(self, ui_report, login):
         """
         Что тестирует - проверяет, что пользователь после нажатия на кнопку Python попадает на страницу Python;
@@ -68,7 +72,7 @@ class TestMain(BaseCase):
         self.main_page.go_to_python_main_page()
         assert self.driver.current_url == 'https://www.python.org/'
 
-    @pytest.mark.skip
+    @allure.story('Тест на нажатие кнопки Python->Python history.')
     def test_main_page_go_to_python_history_page(self, ui_report, login):
         """
         Что тестирует - проверяет, что пользователь после нажатия на кнопку Python history попадает на страницу
@@ -79,7 +83,7 @@ class TestMain(BaseCase):
         self.main_page.go_to_python_history_page()
         assert self.driver.current_url == 'https://en.wikipedia.org/wiki/History_of_Python'
 
-    @pytest.mark.skip
+    @allure.story('Тест на нажатие кнопки Python->About Flask, баг - эта страница скорее гайд, нежели о приложении!')
     def test_main_page_go_to_python_flask_page(self, ui_report, login):
         """
         Что тестирует - проверяет, что пользователь после нажатия на кнопку About Flask попадает на страницу
@@ -88,10 +92,10 @@ class TestMain(BaseCase):
         Ожидаемый результат - пользователь ппопал на страницу About Flask.
         """
         self.main_page.go_to_python_flask_page()
-        # https://palletsprojects.com/p/flask/
-        assert self.driver.current_url == 'https://flask.palletsprojects.com/en/1.1.x/#'
+        # 'https://flask.palletsprojects.com/en/1.1.x/#'
+        assert self.driver.current_url == 'https://palletsprojects.com/p/flask/'
 
-    @pytest.mark.skip
+    @allure.story('Тест на нажатие кнопки Linux->Download Centos7, баг - ссылка на Fedora, а не Centos!')
     def test_main_page_go_to_linux_centos_page(self, ui_report, login):
         """
         Что тестирует - проверяет, что пользователь после нажатия на кнопку Download Centos7 попадает на страницу
@@ -100,10 +104,10 @@ class TestMain(BaseCase):
         Ожидаемый результат - пользователь ппопал на страницу Download Centos7.
         """
         self.main_page.go_to_linux_centos_page()
-        # https://www.centos.org/download/
-        assert self.driver.current_url == 'https://getfedora.org/ru/workstation/download/'
+        # 'https://getfedora.org/ru/workstation/download/'
+        assert self.driver.current_url == 'https://www.centos.org/download/'
 
-    @pytest.mark.skip
+    @allure.story('Тест на нажатие кнопки Network->Wireshark->News.')
     def test_main_page_go_to_network_wireshark_news_page(self, ui_report, login):
         """
         Что тестирует - проверяет, что пользователь после нажатия на кнопку Network-Wireshark-News попадает на страницу
@@ -114,7 +118,7 @@ class TestMain(BaseCase):
         self.main_page.go_to_network_wireshark_news_page()
         assert self.driver.current_url == 'https://www.wireshark.org/news/'
 
-    @pytest.mark.skip
+    @allure.story('Тест на нажатие кнопки Network->Wireshark->Download.')
     def test_main_page_go_to_network_wireshark_download_page(self, ui_report, login):
         """
         Что тестирует - проверяет, что пользователь после нажатия на кнопку Network-Wireshark-Download попадает на
@@ -125,7 +129,7 @@ class TestMain(BaseCase):
         self.main_page.go_to_network_wireshark_download_page()
         assert self.driver.current_url == 'https://www.wireshark.org/#download'
 
-    @pytest.mark.skip
+    @allure.story('Тест на нажатие кнопки Network->TCPDUMP->Examples.')
     def test_main_page_go_to_network_tcpdump_page(self, ui_report, login):
         """
         Что тестирует - проверяет, что пользователь после нажатия на кнопку Network-TCPDUMP-Examples попадает на
@@ -136,7 +140,7 @@ class TestMain(BaseCase):
         self.main_page.go_to_network_tcpdump_page()
         assert self.driver.current_url == 'https://hackertarget.com/tcpdump-examples/'
 
-    @pytest.mark.skip
+    @allure.story('Тест на нажатие кнопки "What is an API?".')
     def test_main_page_go_to_api_page(self, ui_report, login):
         """
         Что тестирует - проверяет, что пользователь после нажатия на кнопку 'What is an API?' попадает на
@@ -147,7 +151,7 @@ class TestMain(BaseCase):
         self.main_page.go_to_api_page()
         assert self.driver.current_url == 'https://en.wikipedia.org/wiki/API'
 
-    @pytest.mark.skip
+    @allure.story('Тест на нажатие кнопки "Future of internet".')
     def test_main_page_go_to_internet_page(self, ui_report, login):
         """
         Что тестирует - проверяет, что пользователь после нажатия на кнопку 'Future of internet' попадает на
@@ -158,7 +162,7 @@ class TestMain(BaseCase):
         self.main_page.go_to_internet_page()
         assert self.driver.current_url == 'https://www.popularmechanics.com/technology/infrastructure/a29666802/future-of-the-internet/'
 
-    @pytest.mark.skip
+    @allure.story('Тест на нажатие кнопки "Lets talk about SMTP?".')
     def test_main_page_go_to_smtp_page(self, ui_report, login):
         """
         Что тестирует - проверяет, что пользователь после нажатия на кнопку 'Lets talk about SMTP?' попадает на
@@ -169,7 +173,7 @@ class TestMain(BaseCase):
         self.main_page.go_to_smtp_page()
         assert self.driver.current_url == 'https://ru.wikipedia.org/wiki/SMTP'
 
-    @pytest.mark.skip
+    @allure.story('Тест на верное отображение залогинененого пользователя.')
     def test_main_page_logged_user(self, ui_report, login):
         """
         Что тестирует - проверяет, что на главной странице отображается корректная информация об авторизованном
@@ -180,12 +184,13 @@ class TestMain(BaseCase):
         res = self.main_page.get_logged_username()
         assert res.text == 'Logged as superuser'
 
-    @pytest.mark.skip
-    def test_main_page_vk_id(self, mock_url, ui_report, login):
+    @allure.story('Тест на верное отображение VK_ID пользователя.')
+    def test_main_page_vk_id(self, ui_report, socket_client, login):
         """
         Что тестирует - проверяет, что на главной странице отображается корректная информация vk_id о пользователе;
         Шаги выполнения - проверка информации vk_id о пользователе;
         Ожидаемый результат - отображается корректная информация vk_id о пользователе.
         """
-        res = self.main_page.get_vk_id(mock_url)
-        assert res.text == 'Logged as superuser'
+        id = 1234567890
+        res = self.main_page.get_vk_id(socket_client, id)
+        assert res.text == f'VK ID: {id}'

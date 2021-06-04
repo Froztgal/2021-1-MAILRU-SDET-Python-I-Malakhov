@@ -49,6 +49,7 @@ class TestAPI:
         res = api_client.post_add_user('username1', 'password1', 'a1b@c.d')
         assert res.status_code == 304
         res = db_client.session.query(TestUsers).filter_by(username='username1').all()
+        db_client.session.commit()
         assert len(res) == 1
 
     @allure.story('Тест на добавление пользователя.')
@@ -61,6 +62,7 @@ class TestAPI:
         """
         api_client.post_add_user('username2', 'password2', 'a2b@c.d')
         res = db_client.session.query(TestUsers).filter_by(username='username2').first()
+        db_client.session.commit()
         self.table_assertion(res, 'username2', 'password2', 'a2b@c.d')
 
     @allure.story('Тест на удаление пользователя.')
@@ -79,6 +81,7 @@ class TestAPI:
         res = api_client.get_del_user('username3')
         assert res.status_code == 204
         res = db_client.session.query(TestUsers).filter_by(username='username3').all()
+        db_client.session.commit()
         assert len(res) == 0
 
     @allure.story('Тест на блокировку пользователя.')
@@ -97,6 +100,7 @@ class TestAPI:
         res = api_client.get_block_user('username4')
         assert res.status_code == 200
         res = db_client.session.query(TestUsers).filter_by(username='username4').first()
+        db_client.session.commit()
         assert res.access == 0
 
     @allure.story('Тест на разблокировку пользователя.')
@@ -122,6 +126,7 @@ class TestAPI:
         res = api_client.get_unblock_user('username5')
         assert res.status_code == 200
         res = db_client.session.query(TestUsers).filter_by(username='username5').first()
+        db_client.session.commit()
         assert res.access == 1
 
     @allure.story('Тест на получение статуса приложения.')
@@ -162,6 +167,7 @@ class TestAPI:
         """
         api_client.post_add_user('0', '0', 'a@b.c')
         res = db_client.session.query(TestUsers).filter_by(username='0').all()
+        db_client.session.commit()
         assert len(res) == 0
 
     @allure.story('Тест на добавление пользователя неавторизованным пользователем.')

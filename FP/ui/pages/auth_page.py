@@ -23,3 +23,7 @@ class AuthPage(BasePage):
         self.fulfill(self.locators.PASSWORD_FIELD, password)
         self.click(self.locators.LOGIN_BUTTON)
         return MainPage(self.driver, self.base_url)
+
+    @allure.step('Searching for error text...')
+    def get_error_text(self):
+        return self.find_hidden("flash")
