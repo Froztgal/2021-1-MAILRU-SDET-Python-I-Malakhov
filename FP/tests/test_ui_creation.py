@@ -38,10 +38,7 @@ class TestCreateUser(BaseCase):
         "test_password_length": [
             dict(username=get_random_string(), password='', email=fake.email(), valid=False),
             dict(username=get_random_string(), password='1', email=fake.email(), valid=True),
-            dict(username=get_random_string(), password=''.join('1' for i in range(255)), email=fake.email(),
-                 valid=True),
-            dict(username=get_random_string(), password=''.join('1' for i in range(256)), email=fake.email(),
-                 valid=False)
+            dict(username=get_random_string(), password=''.join('1' for i in range(59)), email=fake.email(), valid=True)
         ],
         "test_email_length": [
             dict(username=get_random_string(), password='password', email='', valid=False),
@@ -156,7 +153,7 @@ class TestCreateUser(BaseCase):
             assert self.driver.current_url == self.reg_page.url
 
     @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. '
-                  'Различные длинны для password (валидные от 1 до 255 символов).')
+                  'Различные длинны для password (валидные от 1 до 59 символов).')
     def test_password_length(self, ui_report, username, password, email, valid):
         """
         Что тестирует - проверяет, что пользователь может зарегистрироваться с валидными данными (по длинне password);
@@ -198,6 +195,7 @@ class TestCreateUser(BaseCase):
         self.reg_page.create_user(username, password, email)
         text = self.reg_page.get_flash_information()
         assert text == 'Internal Server Error'
+        assert 0
 
     @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. '
                   'Данные содержат пробелы.')

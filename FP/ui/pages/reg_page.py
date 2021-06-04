@@ -7,7 +7,7 @@ class RegPage(BasePage):
 
     def __init__(self, driver, base_url):
         super(RegPage, self).__init__(driver, base_url)
-        self.url += 'reg/'
+        self.url += 'reg'
         self.locators = RegisterPageLocators()
 
     @allure.step('Creating user...')

@@ -80,13 +80,6 @@ def app_url(docker_client, name='mapp'):
     return base_addr
 
 
-# @pytest.fixture
-# def mock_url(docker_client, name='my_mock_vk'):
-#     # container = docker_client.containers.get(name)
-#     # base_addr = f'http://{container.attrs["NetworkSettings"]["IPAddress"]}:8083/'
-#     base_addr = f'http://127.0.0.1:8083/'
-#     return base_addr
-
 @pytest.fixture
 def socket_client(docker_client, name='my_mock_vk'):
     from clients.socket_http_client import SocketClientHTTP

@@ -1,4 +1,6 @@
 import json
+import time
+
 import pytest
 import allure
 from sql_models.models import TestUsers

@@ -1,18 +1,7 @@
-import json
-import os
-import time
-
-import data
 import pytest
 import allure
 from tests.base import BaseCase
-from ui.pages.base_page import PageNotLoadedException
-import requests
-from clients.socket_http_client import SocketClientHTTP
-from clients.api_client import ApiClient
-from clients.db_client import MysqlClient
 from sql_models.models import TestUsers
-from _pytest.fixtures import FixtureRequest
 
 
 @pytest.fixture(scope='function')
@@ -50,6 +39,7 @@ class TestMain(BaseCase):
         """
         self.main_page.go_to_login_page()
         assert self.driver.current_url == self.auth_page.url
+        db_client.session.expire_all()
         assert db_client.session.query(TestUsers).filter(TestUsers.id == 1).first().active == 0
 
     @allure.story('Тест на нажатие кнопки HOME.')

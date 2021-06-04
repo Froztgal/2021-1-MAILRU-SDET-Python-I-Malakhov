@@ -1,7 +1,5 @@
-import time
 import allure
 import logging
-import requests
 from ui.pages.base_page import BasePage
 from ui.locators.pages_locators import MainPageLocators
 
