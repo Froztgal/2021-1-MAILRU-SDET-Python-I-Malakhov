@@ -1,15 +1,12 @@
-import logging
 import allure
-import pytest
-from selenium.common.exceptions import StaleElementReferenceException
-from selenium.webdriver import ActionChains
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
-
-import conftest
-from ui.locators.pages_locators import BasePageLocators
-from _pytest.fixtures import FixtureRequest
+import logging
 from utils.decorators import wait
+from selenium.webdriver import ActionChains
+from ui.locators.pages_locators import BasePageLocators
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import StaleElementReferenceException
+
 
 CLICK_RETRY = 3
 time_out = 5
@@ -30,9 +27,11 @@ class BasePage(object):
         logger.info(f'{self.__class__.__name__} page is opening...')
         self.is_complete()
 
+    @allure.step('Searching for element {locator}')
     def find(self, locator, timeout=time_out):
         return self.wait(timeout).until(EC.presence_of_element_located(locator))
 
+    @allure.step('Searching for hidden element {locator}')
     def find_hidden(self, locator):
         return self.driver.execute_script(f"return document.getElementById('{locator}').innerHTML;")
 
@@ -48,6 +47,7 @@ class BasePage(object):
             return self.driver.execute_script('return arguments[0] == document.readyState;', 'complete')
         return wait(_status, error=PageNotLoadedException, check=True, timeout=time_out, interval=0.1)
 
+    @allure.step('Scrolling to {element}')
     def scroll_to(self, element):
         self.driver.execute_script('arguments[0].scrollIntoView(true);', element)
 
@@ -72,8 +72,6 @@ class BasePage(object):
                 if i == CLICK_RETRY - 1:
                     raise
 
-    # @allure.step('Uploading file {file_path} in {locator}')
-    # def upload(self, locator, file_path, timeout=time_out):
-    #     logger.info(f'Uploading image ({file_path}) into {locator}...')
-    #     upload_field = self.find(locator, timeout)
-    #     upload_field.send_keys(file_path)
+    @allure.step('Clicking on hidden {element}')
+    def hidden_click(self, element):
+        self.driver.execute_script("arguments[0].click();", element)

@@ -1,6 +1,12 @@
 import pytest
 import allure
+from faker import Faker
 from tests.base import BaseCase
+from data import get_random_string
+from faker.providers import internet
+
+fake = Faker()
+fake.add_provider(internet)
 
 
 def pytest_generate_tests(metafunc):
@@ -12,43 +18,43 @@ def pytest_generate_tests(metafunc):
     )
 
 
-@allure.feature('Тесты на вход пользователей.')
-@pytest.mark.usefixtures('clear_reg_table')
-@pytest.mark.UI  # skip / UI
+@allure.feature('Тесты на вход пользователей на странице логина.')
+@pytest.mark.UI
 class TestLogin(BaseCase):
-    from data import get_random_string
-    from faker import Faker
-    from faker.providers import internet
-    fake = Faker()
-    fake.add_provider(internet)
 
     params = {
-        "test_login_data": [dict(username='username', password='password', email='ab@c.d'),
-                       dict(username=''.join('1' for i in range(6)), password='password', email=fake.email()),
-                       dict(username=''.join('1' for i in range(16)), password='password', email=fake.email()),
-                       dict(username=get_random_string(), password='1', email=fake.email()),
-                       dict(username=get_random_string(), password=''.join('1' for i in range(255)),
-                            email=fake.email()),
-                       dict(username=get_random_string(), password='password', email=''.join('a' for i in range(58))
-                                                                                     + 'ab@c.d'),
-                       dict(username='   1   ', password=fake.password(), email=fake.email()),
-                       dict(username=' username ', password=fake.password(), email=fake.email()),
-                       dict(username=get_random_string(), password=' password ', email=fake.email())
-                       ]
+        "test_login_data": [dict(username='username', password='password', email='ab@c.d', valid=True),
+                            dict(username='', password='password', email=fake.email(), valid=False),
+                            dict(username='1', password='password', email=fake.email(), valid=False),
+                            dict(username=''.join('1' for i in range(5)), password='password', email=fake.email(),
+                                 valid=False),
+                            dict(username=''.join('1' for i in range(6)), password='password', email=fake.email(),
+                                 valid=True),
+                            dict(username=''.join('1' for i in range(16)), password='password', email=fake.email(),
+                                 valid=True),
+                            dict(username=get_random_string(), password='1', email=fake.email(), valid=True),
+                            dict(username=get_random_string(), password='password',
+                                 email=''.join('a' for i in range(58)) + 'ab@c.d',
+                                 valid=True),
+                            dict(username='   1   ', password=fake.password(), email=fake.email(), valid=True),
+                            dict(username=' username ', password=fake.password(), email=fake.email(), valid=True),
+                            dict(username=get_random_string(), password='      ', email=fake.email(), valid=False),
+                            dict(username=get_random_string(), password=' password ', email=fake.email(), valid=True),
+                            dict(username=get_random_string(), password=fake.password(), email=' ab@c.d ', valid=False)
+                            ]
     }
 
-    def add_user_to_table(self, username, password, email):
-        from clients.db_client import MysqlClient
-        from builders import MySQLBuilder
-        client = MysqlClient()
-        client.connect()
-        mysql_builder = MySQLBuilder(client)
-        mysql_builder.create_user(username, password, email)
-        client.connection.close()
-
-    # @allure.story('Тестирование данных сгенерированных при помощи Faker.')
-    # PASS
-    def test_login_data(self, username, password, email):
-        self.add_user_to_table(username, password, email)
+    @allure.story('Тест на логин пользователя c username: {username}, password: {password}, email: {email}. Баг '
+                  '- пользователь с невалидной почтой может войти, если такая почта как то попала в БД!')
+    def test_login_data(self, ui_report, my_builder, username, password, email, valid):
+        """
+        Что тестирует - проверяет, что пользователь существующий в БД, может авторизоваться со своими данными;
+        Шаги выполнения - ввод данных в поля на странице авторизации, проверка страницы;
+        Ожидаемый результат - пользователь вошел на страницу авторизации, если данные валидны.
+        """
+        my_builder.create_user(username, password, email)
         self.auth_page.login(username, password)
-        assert self.driver.current_url == 'http://127.0.0.1:8080/welcome/'
+        if valid:
+            assert self.driver.current_url == self.main_page.url
+        else:
+            assert self.driver.current_url in [self.auth_page.url, self.base_page.url]

@@ -1,6 +1,12 @@
+import time
+
 import allure
+import logging
+import requests
 from ui.pages.base_page import BasePage
 from ui.locators.pages_locators import MainPageLocators
+
+logger = logging.getLogger('test')
 
 
 class MainPage(BasePage):
@@ -27,38 +33,87 @@ class MainPage(BasePage):
 
     @allure.step('Going to Python history page...')
     def go_to_python_history_page(self):
-        self.find(self.locators.PYTHON_BUTTON_MAIN)
-        self.click(self.locators.PYTHON_BUTTON_SUB_HISTORY)
+        element_main = self.find(self.locators.PYTHON_BUTTON_MAIN)
+        element_sub = self.find(self.locators.PYTHON_BUTTON_SUB_HISTORY)
+        ach = self.action_chains
+        ach.move_to_element(element_main)
+        ach.click(element_sub)
+        ach.perform()
 
     @allure.step('Going to Python flask page...')
     def go_to_python_flask_page(self):
-        self.find(self.locators.PYTHON_BUTTON_MAIN)
-        self.click(self.locators.PYTHON_BUTTON_SUB_FLASK)
-
-    @allure.step('Going to Linux main page...')
-    def go_to_linux_main_page(self):
-        self.click(self.locators.LINUX_BUTTON_MAIN)
+        element_main = self.find(self.locators.PYTHON_BUTTON_MAIN)
+        element_sub = self.find(self.locators.PYTHON_BUTTON_SUB_FLASK)
+        ach = self.action_chains
+        ach.move_to_element(element_main)
+        ach.click(element_sub)
+        ach.perform()
+        self.driver.switch_to.window(self.driver.window_handles[1])
 
     @allure.step('Going to Linux Centos7 page...')
-    def go_to_linux_main_page(self):
-        self.find(self.locators.LINUX_BUTTON_MAIN)
-        self.click(self.locators.LINUX_BUTTON_SUB_CENTOS)
-
-    @allure.step('Going to Network main page...')
-    def go_to_network_main_page(self):
-        self.click(self.locators.NETWORK_BUTTON_MAIN)
+    def go_to_linux_centos_page(self):
+        element_main = self.find(self.locators.LINUX_BUTTON_MAIN)
+        element_sub = self.find(self.locators.LINUX_BUTTON_SUB_CENTOS)
+        ach = self.action_chains
+        ach.move_to_element(element_main)
+        ach.click(element_sub)
+        ach.perform()
+        self.driver.switch_to.window(self.driver.window_handles[1])
 
     @allure.step('Going to Network Wireshark news page...')
     def go_to_network_wireshark_news_page(self):
-        self.find(self.locators.NETWORK_BUTTON_MAIN)
-        self.click(self.locators.NETWORK_BUTTON_SUB_WIRESHARK_NEWS)
+        element_main = self.find(self.locators.NETWORK_BUTTON_MAIN)
+        element_sub = self.find(self.locators.NETWORK_BUTTON_SUB_WIRESHARK_NEWS)
+        ach = self.action_chains
+        ach.move_to_element(element_main)
+        ach.click(element_sub)
+        ach.perform()
+        self.driver.switch_to.window(self.driver.window_handles[1])
 
     @allure.step('Going to Network Wireshark download page...')
     def go_to_network_wireshark_download_page(self):
-        self.find(self.locators.NETWORK_BUTTON_MAIN)
-        self.click(self.locators.NETWORK_BUTTON_SUB_WIRESHARK_DOWNLOAD)
+        element_main = self.find(self.locators.NETWORK_BUTTON_MAIN)
+        element_sub = self.find(self.locators.NETWORK_BUTTON_SUB_WIRESHARK_DOWNLOAD)
+        ach = self.action_chains
+        ach.move_to_element(element_main)
+        ach.click(element_sub)
+        ach.perform()
+        self.driver.switch_to.window(self.driver.window_handles[1])
 
     @allure.step('Going to Network TCPDUMP page...')
     def go_to_network_tcpdump_page(self):
-        self.find(self.locators.NETWORK_BUTTON_MAIN)
-        self.click(self.locators.NETWORK_BUTTON_SUB_TCP_DUMP)
+        element_main = self.find(self.locators.NETWORK_BUTTON_MAIN)
+        element_sub = self.find(self.locators.NETWORK_BUTTON_SUB_TCP_DUMP)
+        ach = self.action_chains
+        ach.move_to_element(element_main)
+        ach.click(element_sub)
+        ach.perform()
+        self.driver.switch_to.window(self.driver.window_handles[1])
+
+    @allure.step('Going to API page...')
+    def go_to_api_page(self):
+        self.click(self.locators.API_BUTTON)
+        self.driver.switch_to.window(self.driver.window_handles[1])
+
+    @allure.step('Going to future of internet page...')
+    def go_to_internet_page(self):
+        self.click(self.locators.INTERNET_BUTTON)
+        self.driver.switch_to.window(self.driver.window_handles[1])
+
+    @allure.step('Going to SMTP page...')
+    def go_to_smtp_page(self):
+        self.click(self.locators.SMTP_BUTTON)
+        self.driver.switch_to.window(self.driver.window_handles[1])
+
+    @allure.step('Searching for logged username...')
+    def get_logged_username(self):
+        return self.find(self.locators.get_logged_user('superuser'))
+
+    # TODO: Не работает
+    @allure.step('Searching for VK_ID...')
+    def get_vk_id(self, mock_url):
+        url = mock_url + 'vk_id_add/superuser'
+        requests.post(url, data={'vk_id': 1234567890})
+        self.driver.refresh()
+        time.sleep(20)
+        return self.find(self.locators.get_logged_user('superuser'))

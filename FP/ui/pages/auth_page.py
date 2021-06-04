@@ -7,6 +7,7 @@ class AuthPage(BasePage):
 
     def __init__(self, driver, base_url):
         super(AuthPage, self).__init__(driver, base_url)
+        self.url += 'login'
         self.locators = AuthPageLocators()
 
     @allure.step('Going to Create account page...')
@@ -16,7 +17,7 @@ class AuthPage(BasePage):
         return RegPage(self.driver, self.base_url)
 
     @allure.step('Logging...')
-    def login(self, username='username', password='password'):
+    def login(self, username='superuser', password='superuser'):
         from ui.pages.main_page import MainPage
         self.fulfill(self.locators.USERNAME_FIELD, username)
         self.fulfill(self.locators.PASSWORD_FIELD, password)

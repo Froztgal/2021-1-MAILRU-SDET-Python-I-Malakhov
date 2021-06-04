@@ -34,3 +34,4 @@ class MysqlClient:
         res = self.connection.execute(query)
         if fetch:
             return res.fetchall()
+

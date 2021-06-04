@@ -1,5 +1,3 @@
-import time
-
 import pytest
 import allure
 from tests.base import BaseCase
@@ -14,8 +12,7 @@ def pytest_generate_tests(metafunc):
     )
 
 
-@allure.feature('Тесты на создание пользователей.')
-@pytest.mark.usefixtures('clear_reg_table')
+@allure.feature('Тесты на создание пользователей на странице регистрации.')
 @pytest.mark.UI  # skip / UI
 class TestCreateUser(BaseCase):
     from data import get_random_string
@@ -67,28 +64,54 @@ class TestCreateUser(BaseCase):
         ]
     }
 
-    # @allure.story('Тестирование данных сгенерированных при помощи Faker.')
-    # PASS
-    def test_basic(self, username, password, email):
+    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}.')
+    def test_basic(self, ui_report, username, password, email):
+        """
+        Что тестирует - проверяет, что пользователь может зарегистрироваться с валидными данными;
+        Шаги выполнения - ввод данных в поля на странице регистрации, проверка страницы;
+        Ожидаемый результат - пользователь зарегистрировался и попал на главную страницу, если данные валидны.
+        """
         self.auth_page.go_to_create_account_page()
         self.reg_page.create_user(username, password, email)
         assert self.driver.current_url == self.main_page.url
 
-    # FAIL
-    def test_without_checkbox(self, username, password, email):
+    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. Без '
+                  'галочки в чекбоксе.')
+    def test_without_checkbox(self, ui_report, username, password, email):
+        """
+        Что тестирует - проверяет, что пользователь не может зарегистрироваться с валидными данными, если он не
+        отметил галочку в чекбоксе;
+        Шаги выполнения - ввод данных в поля на странице регистрации, без галочки, проверка страницы;
+        Ожидаемый результат - пользователь не зарегистрировался и не попал на главную страницу.
+        """
         self.auth_page.go_to_create_account_page()
         self.reg_page.create_user(username, password, email, chekbox=False)
         assert self.driver.current_url == self.reg_page.url
 
-    # PASS
-    def test_wrong_re_password(self, username, password, email):
+    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. '
+                  'Неверно введен пароль повторно.')
+    def test_wrong_re_password(self, ui_report, username, password, email):
+        """
+        Что тестирует - проверяет, что пользователь не может зарегистрироваться с валидными данными, если он ввел
+        неверно пароль повторно;
+        Шаги выполнения - ввод данных в поля на странице регистрации, повторно пароль вводиться неверно,
+        проверка страницы;
+        Ожидаемый результат - пользователь не зарегистрировался и не попал на главную страницу.
+        """
         self.auth_page.go_to_create_account_page()
         self.reg_page.create_user(username, password, email, re_password='not_password')
         text = self.reg_page.get_flash_information()
         assert text == 'Passwords must match'
 
-    # PASS, but it's bug!
-    def test_existent_email(self, username, password, email):
+    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. Баг '
+                  '- Internal Server Error (500)!')
+    def test_existent_email(self, ui_report, username, password, email):
+        """
+        Что тестирует - проверяет, что пользователь не может зарегистрироваться с валидными данными, если он ввел
+        уже зарегестрированную почту;
+        Шаги выполнения - ввод данных в поля на странице регистрации, проверка страницы;
+        Ожидаемый результат - пользователь не зарегистрировался и не попал на главную страницу.
+        """
         self.auth_page.go_to_create_account_page()
         self.reg_page.create_user(username, password, email)
         assert self.driver.current_url == self.main_page.url
@@ -97,9 +120,17 @@ class TestCreateUser(BaseCase):
         self.reg_page.create_user('new' + username, password, email)
         text = self.reg_page.get_flash_information()
         assert text == 'Internal Server Error'
+        assert 0
 
-    # PASS
-    def test_existent_username(self, username, password, email):
+    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. '
+                  'Такой пользователь уже существует.')
+    def test_existent_username(self, ui_report, username, password, email):
+        """
+        Что тестирует - проверяет, что пользователь не может зарегистрироваться с валидными данными, если он ввел
+        уже зарегестрированное имя пользователя;
+        Шаги выполнения - ввод данных в поля на странице регистрации, проверка страницы;
+        Ожидаемый результат - пользователь не зарегистрировался и не попал на главную страницу.
+        """
         self.auth_page.go_to_create_account_page()
         self.reg_page.create_user(username, password, email)
         assert self.driver.current_url == self.main_page.url
@@ -109,8 +140,14 @@ class TestCreateUser(BaseCase):
         text = self.reg_page.get_flash_information()
         assert text == 'User already exist'
 
-    # PASS
-    def test_username_length(self, username, password, email, valid):
+    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. '
+                  'Различные длинны для username (валидные от 6 до 16 символов).')
+    def test_username_length(self, ui_report, username, password, email, valid):
+        """
+        Что тестирует - проверяет, что пользователь может зарегистрироваться с валидными данными (по длинне username);
+        Шаги выполнения - ввод данных в поля на странице регистрации, проверка страницы;
+        Ожидаемый результат - пользователь зарегистрировался и попал на главную страницу, если данные валидны.
+        """
         self.auth_page.go_to_create_account_page()
         self.reg_page.create_user(username, password, email)
         if valid:
@@ -118,8 +155,14 @@ class TestCreateUser(BaseCase):
         else:
             assert self.driver.current_url == self.reg_page.url
 
-    # PASS
-    def test_password_length(self, username, password, email, valid):
+    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. '
+                  'Различные длинны для password (валидные от 1 до 255 символов).')
+    def test_password_length(self, ui_report, username, password, email, valid):
+        """
+        Что тестирует - проверяет, что пользователь может зарегистрироваться с валидными данными (по длинне password);
+        Шаги выполнения - ввод данных в поля на странице регистрации, проверка страницы;
+        Ожидаемый результат - пользователь зарегистрировался и попал на главную страницу, если данные валидны.
+        """
         self.auth_page.go_to_create_account_page()
         self.reg_page.create_user(username, password, email)
         if valid:
@@ -127,8 +170,14 @@ class TestCreateUser(BaseCase):
         else:
             assert self.driver.current_url == self.reg_page.url
 
-    # PASS
-    def test_email_length(self, username, password, email, valid):
+    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. '
+                  'Различные длинны для email (валидные от 4 до 64 символов).')
+    def test_email_length(self, ui_report, username, password, email, valid):
+        """
+        Что тестирует - проверяет, что пользователь может зарегистрироваться с валидными данными (по длинне email);
+        Шаги выполнения - ввод данных в поля на странице регистрации, проверка страницы;
+        Ожидаемый результат - пользователь зарегистрировался и попал на главную страницу, если данные валидны.
+        """
         self.auth_page.go_to_create_account_page()
         self.reg_page.create_user(username, password, email)
         if valid:
@@ -137,15 +186,27 @@ class TestCreateUser(BaseCase):
             text = self.reg_page.get_flash_information()
             assert text == 'Incorrect email length'
 
-    # PASS, but it's bug!
-    def test_rus_data(self, username, password, email):
+    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. Баг '
+                  '- Internal Server Error (500)!')
+    def test_rus_data(self, ui_report, username, password, email):
+        """
+        Что тестирует - проверяет, что пользователь не может зарегистрироваться с данными на русском языке;
+        Шаги выполнения - ввод данных в поля на странице регистрации, проверка страницы;
+        Ожидаемый результат - пользователь не зарегистрировался и не попал на главную страницу.
+        """
         self.auth_page.go_to_create_account_page()
         self.reg_page.create_user(username, password, email)
         text = self.reg_page.get_flash_information()
         assert text == 'Internal Server Error'
 
-    # PASS
-    def test_spaces_data(self, username, password, email, valid):
+    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. '
+                  'Данные содержат пробелы.')
+    def test_spaces_data(self, ui_report, username, password, email, valid):
+        """
+        Что тестирует - проверяет, что пользователь может зарегистрироваться с данными с пробелами;
+        Шаги выполнения - ввод данных в поля на странице регистрации, проверка страницы;
+        Ожидаемый результат - пользователь зарегистрировался и попал на главную страницу.
+        """
         self.auth_page.go_to_create_account_page()
         self.reg_page.create_user(username, password, email)
         if valid:

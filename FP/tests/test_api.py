@@ -1,137 +1,177 @@
 import json
-import os
-import time
-
-import data
 import pytest
 import allure
-from tests.base import BaseCase
-from ui.pages.base_page import PageNotLoadedException
-import requests
-from clients.socket_http_client import SocketClientHTTP
-from clients.api_client import ApiClient
-from clients.db_client import MysqlClient
 from sql_models.models import TestUsers
-from _pytest.fixtures import FixtureRequest
 
 
-# Работает подключение к БД и чтение из нее!
-# def test_db():
-#     client = MysqlClient()
-#     client.connect()
-#
-#     res = client.session.query(TestUsers).all()
-#     print(res)
-#
-#     client.connection.close()
-#     assert 0
-
-# Работает
-# def test_mock():
-#     client = SocketClientHTTP()
-#     res = client.mock_post('/vk_id_add/Actonic1', jdata={'vk_id': '123456789'})
-#     print(res)
-#     res = client.mock_get('/vk_id/Actonic1')
-#     print(res)
-#     # print(json.loads(res[-1])['vk_id'])
-#     assert 0
-
-# def test_api():
-#     client = ApiClient()
-#     res = client.post_login('Actonic1', 'Actonic1')
-#     # res = client.post_add_user('abcdefg', 'abcdefg', 'abcdefg@zxc.com')
-#     # res = client.get_app_status() # Работает
-#     res = client.get_block_user('asasasasas')
-#     print(res.status_code)
-#     print(res.content)
-#     assert 0
-
-def add_to_table(username, password, email):
-    from clients.db_client import MysqlClient
-    from builders import MySQLBuilder
-    client = MysqlClient()
-    client.connect()
-    mysql_builder = MySQLBuilder(client)
-    mysql_builder.create_user(username, password, email)
-    client.connection.close()
+@pytest.fixture(scope='function', autouse=True)
+def login_as_superuser(api_client):
+    api_client.post_login('superuser', 'superuser')
 
 
-def clear_reg_table():
-    from clients.db_client import MysqlClient
-    client = MysqlClient()
-    client.connect()
-    client.execute_query('truncate test_users;', False)
-    client.connection.close()
-
-@pytest.fixture(scope='class', autouse=True)
-def setup():
-    clear_reg_table()
-    username = 'username'
-    password = 'password'
-    email = 'ab@c.d'
-    add_to_table(username, password, email)
-    api_client = ApiClient()
-    api_client.post_login(username, password)
-    db_client = MysqlClient()
-    db_client.connect()
-
-@allure.feature('Тесты главной страницы.')
-@pytest.mark.UI  # skip / UI
+@allure.feature('Тесты API.')
+@pytest.mark.API
 class TestAPI:
 
-    # @allure.story('Тестирование данных сгенерированных при помощи Faker.')
-    # PASS
-    @pytest.mark.skip
-    def test_add_user(self):
-        db_client = MysqlClient()
-        db_client.connect()
-        api_client = ApiClient()
-        api_client.post_login('username', 'password')
+    @staticmethod
+    def table_assertion(res, username, password, email, access=1, active=0, start_active_time=None):
+        assert res.username == username
+        assert res.password == password
+        assert res.email == email
+        assert res.access == access
+        assert res.active == active
+        assert res.start_active_time == start_active_time
+
+    @allure.story('Тест на добавление пользователя, баг - неверный статус код!')
+    def test_add_user(self, api_client):
+        """
+        Что тестирует - проверяет, что API запрос, отправленный авторизованным пользователем, на добавление
+        пользователя отрабатывает корректно;
+        Шаги выполнения - отправка POST запроса на добавление пользователя, проверка ответа;
+        Ожидаемый результат - в ответ на запрос пришел корректный ответ.
+        """
+        res = api_client.post_add_user('username0', 'password0', 'a0b@c.d')
+        assert res.status_code == 201
+
+    @allure.story('Тест на добавление существующего пользователя.')
+    def test_add_existent_user(self, api_client, db_client):
+        """
+        Что тестирует - проверяет, что API запрос, отправленный авторизованным пользователем, на добавление
+        существующего пользователя отрабатывает корректно;
+        Шаги выполнения - отправка POST запроса на добавление пользователя, проверка добавления пользователя в БД,
+        повторная отправка POST запроса на добавление пользователя, проверка ответа и того что пользователь в БД один;
+        Ожидаемый результат - в ответ на запрос пришел корректный ответ, в БД один пользователь с таким именем.
+        """
         api_client.post_add_user('username1', 'password1', 'a1b@c.d')
         res = db_client.session.query(TestUsers).filter_by(username='username1').first()
-        assert res.username == 'username1'
-        assert res.password == 'password1'
-        assert res.email == 'a1b@c.d'
-        assert res.access == 1
-        assert res.active == 0
-        assert res.start_active_time is None
-
-    @pytest.mark.skip
-    def test_del_user(self):
-        self.test_add_user()
-        db_client = MysqlClient()
-        db_client.connect()
-        api_client = ApiClient()
-        api_client.post_login('username', 'password')
-        api_client.get_del_user('username1')
+        db_client.session.commit()
+        self.table_assertion(res, 'username1', 'password1', 'a1b@c.d')
+        res = api_client.post_add_user('username1', 'password1', 'a1b@c.d')
+        assert res.status_code == 304
         res = db_client.session.query(TestUsers).filter_by(username='username1').all()
+        assert len(res) == 1
+
+    @allure.story('Тест на добавление пользователя.')
+    def test_add_user_without_status_code(self, api_client, db_client):
+        """
+        Что тестирует - проверяет, что API запрос, отправленный авторизованным пользователем, на добавление
+        пользователя отрабатывает корректно;
+        Шаги выполнения - отправка POST запроса на добавление пользователя, проверка добавления пользователя в БД;
+        Ожидаемый результат - Пользователь добавлен в БД.
+        """
+        api_client.post_add_user('username2', 'password2', 'a2b@c.d')
+        res = db_client.session.query(TestUsers).filter_by(username='username2').first()
+        self.table_assertion(res, 'username2', 'password2', 'a2b@c.d')
+
+    @allure.story('Тест на удаление пользователя.')
+    def test_del_user(self, api_client, db_client):
+        """
+        Что тестирует - проверяет, что API запрос, отправленный авторизованным пользователем, на удаление
+        существующего пользователя отрабатывает корректно;
+        Шаги выполнения - отправка POST запроса на добавление пользователя, проверка добавления пользователя в БД,
+        отправка GET запроса на удаление пользователя, проверка ответа и того что пользователь удален из БД;
+        Ожидаемый результат - в ответ на запрос пришел корректный ответ, в БД пользователя нет.
+        """
+        api_client.post_add_user('username3', 'password3', 'a3b@c.d')
+        res = db_client.session.query(TestUsers).filter_by(username='username3').first()
+        db_client.session.commit()
+        self.table_assertion(res, 'username3', 'password3', 'a3b@c.d')
+        res = api_client.get_del_user('username3')
+        assert res.status_code == 204
+        res = db_client.session.query(TestUsers).filter_by(username='username3').all()
         assert len(res) == 0
 
-    @pytest.mark.skip
-    def test_block_user(self):
-        self.test_add_user()
-        db_client = MysqlClient()
-        db_client.connect()
-        api_client = ApiClient()
-        api_client.post_login('username', 'password')
-        api_client.get_block_user('username1')
-        res = db_client.session.query(TestUsers).filter_by(username='username1').first()
+    @allure.story('Тест на блокировку пользователя.')
+    def test_block_user(self, api_client, db_client):
+        """
+        Что тестирует - проверяет, что API запрос, отправленный авторизованным пользователем, на блокировку
+        существующего пользователя отрабатывает корректно;
+        Шаги выполнения - отправка POST запроса на добавление пользователя, проверка добавления пользователя в БД,
+        отправка GET запроса на блокировку пользователя, проверка ответа и того что пользователь заблокирован в БД;
+        Ожидаемый результат - в ответ на запрос пришел корректный ответ, в БД пользователь заблокирован.
+        """
+        api_client.post_add_user('username4', 'password4', 'a4b@c.d')
+        res = db_client.session.query(TestUsers).filter_by(username='username4').first()
+        db_client.session.commit()
+        self.table_assertion(res, 'username4', 'password4', 'a4b@c.d')
+        res = api_client.get_block_user('username4')
+        assert res.status_code == 200
+        res = db_client.session.query(TestUsers).filter_by(username='username4').first()
         assert res.access == 0
 
-    @pytest.mark.skip
-    def test_unblock_user(self):
-        self.test_block_user()
-        db_client = MysqlClient()
-        db_client.connect()
-        api_client = ApiClient()
-        api_client.post_login('username', 'password')
-        api_client.get_unblock_user('username1')
-        res = db_client.session.query(TestUsers).filter_by(username='username1').first()
+    @allure.story('Тест на разблокировку пользователя.')
+    def test_unblock_user(self, api_client, db_client):
+        """
+        Что тестирует - проверяет, что API запрос, отправленный авторизованным пользователем, на разблокировку
+        существующего пользователя отрабатывает корректно;
+        Шаги выполнения - отправка POST запроса на добавление пользователя, проверка добавления пользователя в БД,
+        отправка GET запроса на блокировку пользователя, проверка ответа и того что пользователь заблокирован в БД,
+        отправка GET запроса на разблокировку пользователя, проверка ответа и того что пользователь раззаблокирован в
+        БД;
+        Ожидаемый результат - в ответ на запрос пришел корректный ответ, в БД пользователь раззаблокирован.
+        """
+        api_client.post_add_user('username5', 'password5', 'a5b@c.d')
+        res = db_client.session.query(TestUsers).filter_by(username='username5').first()
+        db_client.session.commit()
+        self.table_assertion(res, 'username5', 'password5', 'a5b@c.d')
+        res = api_client.get_block_user('username5')
+        assert res.status_code == 200
+        res = db_client.session.query(TestUsers).filter_by(username='username5').first()
+        db_client.session.commit()
+        assert res.access == 0
+        res = api_client.get_unblock_user('username5')
+        assert res.status_code == 200
+        res = db_client.session.query(TestUsers).filter_by(username='username5').first()
         assert res.access == 1
 
-    @pytest.mark.skip
-    def test_app_status(self):
-        api_client = ApiClient()
+    @allure.story('Тест на получение статуса приложения.')
+    def test_app_status(self, api_client):
+        """
+        Что тестирует - проверяет, что API запрос, на получение статуса приложения, отрабатывает корректно;
+        Шаги выполнения - отправка GET запроса на получение статуса приложения, проверка ответа;
+        Ожидаемый результат - в ответ на запрос пришел корректный ответ.
+        """
         res = api_client.get_app_status()
         assert res.status_code == 200
         assert json.loads(res.content)['status'] == 'ok'
+
+    @allure.story('Тест на код 404.')
+    def test_404(self, api_client):
+        """
+        Что тестирует - проверяет, что API запросы, отправленный авторизованным пользователем, на удаление, блокировку и
+        разблокировку несуществующего пользователя отрабатывают корректно;
+        Шаги выполнения - отправка GET запроса на удаление пользователя, проверка ответа, отправка GET запроса на
+        блокировку пользователя, проверка ответа, отправка GET запроса на разблокировку пользователя, проверка ответа;
+        Ожидаемый результат - в ответ на запросы пришел корректный ответ.
+        """
+        res = api_client.get_del_user('username6')
+        assert res.status_code == 404
+        res = api_client.get_block_user('username6')
+        assert res.status_code == 404
+        res = api_client.get_unblock_user('username6')
+        assert res.status_code == 404
+
+    @allure.story('Тест на добавление пользователя, баг - невалидные данные пользователя!')
+    def test_add_user_bad(self, api_client, db_client):
+        """
+        Что тестирует - проверяет, что API запрос, отправленный авторизованным пользователем, на добавление невалидного
+        пользователя отрабатывает корректно;
+        Шаги выполнения - отправка POST запроса на добавление невалидного пользователя, проверка добавления
+        пользователя в БД;
+        Ожидаемый результат - Пользователь не добавлен в БД.
+        """
+        api_client.post_add_user('0', '0', 'a@b.c')
+        res = db_client.session.query(TestUsers).filter_by(username='0').all()
+        assert len(res) == 0
+
+    @allure.story('Тест на добавление пользователя неавторизованным пользователем.')
+    def test_add_user_no_authorize(self, api_client):
+        """
+        Что тестирует - проверяет, что API запрос, отправленный неавторизованным пользователем, на добавление
+        пользователя отрабатывает корректно;
+        Шаги выполнения - отправка POST запроса на добавление пользователя, проверка ответа;
+        Ожидаемый результат - в ответ на запрос пришел корректный ответ.
+        """
+        api_client.get_logout()
+        res = api_client.post_add_user('username7', 'password7', 'a7b@c.d')
+        assert res.status_code == 401

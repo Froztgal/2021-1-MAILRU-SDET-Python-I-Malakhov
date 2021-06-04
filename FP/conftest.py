@@ -57,7 +57,7 @@ def pytest_configure(config):
 @pytest.fixture(scope='function', autouse=True)
 def test_dir(request):
     test_name = request._pyfuncitem.nodeid
-    prohibitted_chars = '\/|:*?"<>'
+    prohibitted_chars = '\\/|:*?"<>'
     for char in prohibitted_chars:
         test_name = test_name.replace(char, '_')
     test_dir = os.path.join(request.config.base_test_dir, test_name)
@@ -80,6 +80,13 @@ def app_url(docker_client, name='mapp'):
     return base_addr
 
 
+@pytest.fixture
+def mock_url(docker_client, name='my_mock_vk'):
+    container = docker_client.containers.get(name)
+    base_addr = f'http://{container.attrs["NetworkSettings"]["IPAddress"]}:8083/'
+    return base_addr
+
+
 @pytest.fixture(scope='session', autouse=True)
 def db_client():
     from clients.db_client import MysqlClient
@@ -90,9 +97,23 @@ def db_client():
 
 
 @pytest.fixture(scope='session', autouse=True)
-def clear_table(db_client):
-    yield
+def my_builder(db_client):
+    from builders import MySQLBuilder
+    mysql_builder = MySQLBuilder(db_client)
+    yield mysql_builder
+
+
+@pytest.fixture(scope='session', autouse=True)
+def api_client():
+    from clients.api_client import ApiClient
+    client = ApiClient()
+    yield client
+
+
+@pytest.fixture(scope='class', autouse=True)
+def clear_table(db_client, my_builder):
     db_client.execute_query('truncate test_users;', False)
+    my_builder.create_user('superuser', 'superuser', 'superuser@gmail.com')
 
 
 @pytest.fixture(scope='function', autouse=True)
