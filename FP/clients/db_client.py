@@ -1,4 +1,6 @@
 import sqlalchemy
+from sqlalchemy import inspect
+from sql_models.models import Base
 from sqlalchemy.orm import sessionmaker
 
 
@@ -35,3 +37,15 @@ class MysqlClient:
         if fetch:
             return res.fetchall()
 
+    def recreate_db(self):
+        self.connect(db_created=False)
+        self.execute_query(f'DROP database if exists {self.db_name}', fetch=False)
+        self.execute_query(f'CREATE database {self.db_name}', fetch=False)
+        # self.execute_query("CREATE USER 'test_qa' IDENTIFIED BY 'qa_test';", fetch=False)
+        # self.execute_query("GRANT ALL PRIVILEGES ON * . * TO 'test_qa';", fetch=False)
+        # self.execute_query("FLUSH PRIVILEGES;", fetch=False)
+        self.connection.close()
+
+    def create_base_table(self):
+        if not inspect(self.engine).has_table(self.table_name):
+            Base.metadata.tables[self.table_name].create(self.engine)

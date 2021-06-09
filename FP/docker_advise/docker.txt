@@ -4,6 +4,7 @@
 	В cmd: (Запустить БД в отдельном контейнере)
 		docker run --name test_sql -e MYSQL_ROOT_PASSWORD=pass -p 3306:3306 -d percona:latest
 	В CLI docker: (Зайти в поднятую БД под пользователем root и паролем ROOT_PASSWORD)
+	Уже реализовал это в коде
 		mysql -h127.0.0.1 -P3306 -uroot -ppass
 		CREATE DATABASE test_db;
 		USE test_db;
@@ -19,6 +20,7 @@
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `ix_test_users_username` (`username`)
 );
+    Это непонятно как в код засунуть
 		CREATE USER 'test_qa' IDENTIFIED BY 'qa_test';
 		GRANT ALL PRIVILEGES ON * . * TO 'test_qa';
 		FLUSH PRIVILEGES;
@@ -33,3 +35,6 @@
     docker run -d --name selenoid-ui --link selenoid -p 8081:8080 aerokube/selenoid-ui:latest --selenoid-uri http://selenoid:4444
 4. Запуск myapp (config.txt скинуть на D в корень)
 	docker run --name mapp -v "/D/tmp/config.txt":"/D/tmp/config.txt" -p 8080:8080 --link test_sql:test_sql --link my_mock_vk:my_mock_vk myapp /app/myapp --config="/D/tmp/config.txt"
+5. Запуск тестов и генерация allure отчета
+    pytest -s -l -v FP\tests\ --selenoid --alluredir=C:\tests
+    allure serve C:\tests

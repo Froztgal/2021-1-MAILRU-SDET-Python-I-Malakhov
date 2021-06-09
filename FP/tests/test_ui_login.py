@@ -77,6 +77,7 @@ class TestLogin(BaseCase):
         """
         my_builder.create_user(username, password, email)
         self.auth_page.login(username, password)
+        self.auth_page.is_complete()
         if valid:
             assert self.driver.current_url == self.main_page.url
         else:

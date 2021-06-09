@@ -2,6 +2,10 @@ import sys
 import shutil
 import logging
 from ui.fixtures import *
+from docker import DockerClient
+from clients.api_client import ApiClient
+from clients.db_client import MysqlClient
+from clients.socket_http_client import SocketClientHTTP
 
 
 def pytest_addoption(parser):
@@ -50,6 +54,12 @@ def pytest_configure(config):
             shutil.rmtree(base_test_dir)
         os.makedirs(base_test_dir)
 
+    mysql_client = MysqlClient()
+    mysql_client.recreate_db()
+    mysql_client.connect()
+    mysql_client.create_base_table()
+    mysql_client.connection.close()
+
     # save to config for all workers
     config.base_test_dir = base_test_dir
 
@@ -67,7 +77,6 @@ def test_dir(request):
 
 @pytest.fixture
 def docker_client():
-    from docker import DockerClient
     client = DockerClient()
     yield client
     client.close()
@@ -81,15 +90,13 @@ def app_url(docker_client, name='mapp'):
 
 
 @pytest.fixture
-def socket_client(docker_client, name='my_mock_vk'):
-    from clients.socket_http_client import SocketClientHTTP
+def socket_client(docker_client):
     client = SocketClientHTTP()
     yield client
 
 
 @pytest.fixture(scope='session', autouse=True)
 def db_client():
-    from clients.db_client import MysqlClient
     client = MysqlClient()
     client.connect()
     yield client
@@ -105,7 +112,6 @@ def my_builder(db_client):
 
 @pytest.fixture(scope='session', autouse=True)
 def api_client():
-    from clients.api_client import ApiClient
     client = ApiClient()
     yield client
 

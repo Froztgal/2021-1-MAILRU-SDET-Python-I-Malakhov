@@ -85,6 +85,7 @@ def driver(config, test_dir, app_url):
 def ui_report(driver, request, test_dir):
     failed_tests_count = request.session.testsfailed
     yield
+    webdriver.Chrome.implicitly_wait(driver, 5)
     if request.session.testsfailed > failed_tests_count:
         screenshot_file = os.path.join(test_dir, 'failure.png')
         driver.get_screenshot_as_file(screenshot_file)
