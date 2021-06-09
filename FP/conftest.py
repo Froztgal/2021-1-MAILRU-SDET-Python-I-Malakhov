@@ -43,9 +43,9 @@ def repo_root():
     return os.path.abspath(os.path.join(__file__, os.pardir))
 
 
-def pytest_configure(config):
+def pytest_configure(config, repo_root):
     if sys.platform.startswith('win'):
-        base_test_dir = 'C:\\tests'
+        base_test_dir = repo_root + '\\allure-results'
     else:
         base_test_dir = '/tmp/tests'
 
