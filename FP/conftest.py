@@ -45,7 +45,8 @@ def repo_root():
 
 def pytest_configure(config):
     if sys.platform.startswith('win'):
-        base_test_dir = 'C:\\tests'
+        # base_test_dir = 'C:\\tests'
+        base_test_dir = 'G:\\Jenkins\\.jenkins\\workspace\\BalkaTest\\FP\\allure-results'
     else:
         base_test_dir = '/tmp/tests'
 
