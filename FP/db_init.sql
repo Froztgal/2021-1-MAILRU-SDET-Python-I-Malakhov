@@ -1,3 +1,4 @@
 CREATE USER 'test_qa' IDENTIFIED BY 'qa_test';
 GRANT ALL PRIVILEGES ON * . * TO 'test_qa';
 FLUSH PRIVILEGES;
+CREATE DATABASE test_db;
