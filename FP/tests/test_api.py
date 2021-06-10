@@ -22,7 +22,8 @@ class TestAPI:
         assert res.active == active
         assert res.start_active_time == start_active_time
 
-    @allure.story('Тест на добавление пользователя, баг - неверный статус код!')
+    @allure.story('Тест на добавление пользователя.')
+    @allure.title('Баг - неверный статус код!')
     def test_add_user(self, api_client):
         """
         Что тестирует - проверяет, что API запрос, отправленный авторизованным пользователем, на добавление
@@ -156,7 +157,8 @@ class TestAPI:
         res = api_client.get_unblock_user('username6')
         assert res.status_code == 404
 
-    @allure.story('Тест на добавление пользователя, баг - невалидные данные пользователя!')
+    @allure.story('Тест на добавление пользователя.')
+    @allure.title('Баг - невалидные данные пользователя!')
     def test_add_user_bad(self, api_client, db_client):
         """
         Что тестирует - проверяет, что API запрос, отправленный авторизованным пользователем, на добавление невалидного

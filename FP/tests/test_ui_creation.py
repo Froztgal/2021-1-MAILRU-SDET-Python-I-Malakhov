@@ -108,8 +108,8 @@ class TestCreateUser(BaseCase):
         text = self.reg_page.get_flash_information()
         assert text == 'Passwords must match'
 
-    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. Баг '
-                  '- Internal Server Error (500)!')
+    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}.')
+    @allure.title('Баг - Internal Server Error (500)!')
     def test_existent_email(self, ui_report, username, password, email):
         """
         Что тестирует - проверяет, что пользователь не может зарегистрироваться с валидными данными, если он ввел
@@ -191,8 +191,8 @@ class TestCreateUser(BaseCase):
             text = self.reg_page.get_flash_information()
             assert text == 'Incorrect email length'
 
-    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. Баг '
-                  '- Internal Server Error (500)!')
+    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}.')
+    @allure.title('Баг - Internal Server Error (500)!')
     def test_rus_data(self, ui_report, username, password, email):
         """
         Что тестирует - проверяет, что пользователь не может зарегистрироваться с данными на русском языке;

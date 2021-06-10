@@ -17,7 +17,8 @@ def block_superuser(db_client):
 @pytest.mark.UI
 class TestMain(BaseCase):
 
-    @allure.story('Тест на разлогин забаненого пользователя, баг - в БД пользователь остается активен!')
+    @allure.story('Тест на разлогин забаненого пользователя.')
+    @allure.title('Баг - в БД пользователь остается активен!')
     def test_main_logout_when_blocked(self, ui_report, login, block_superuser):
         """
         Что тестирует - проверяет, что авторизованный пользователь после блокировки, и обновления страницы вылетает
@@ -73,7 +74,8 @@ class TestMain(BaseCase):
         self.main_page.go_to_python_history_page()
         assert self.driver.current_url == 'https://en.wikipedia.org/wiki/History_of_Python'
 
-    @allure.story('Тест на нажатие кнопки Python->About Flask, баг - эта страница скорее гайд, нежели о приложении!')
+    @allure.story('Тест на нажатие кнопки Python->About Flask.')
+    @allure.title('Баг - эта страница скорее гайд, нежели о приложении!')
     def test_main_page_go_to_python_flask_page(self, ui_report, login):
         """
         Что тестирует - проверяет, что пользователь после нажатия на кнопку About Flask попадает на страницу
@@ -85,7 +87,8 @@ class TestMain(BaseCase):
         # 'https://flask.palletsprojects.com/en/1.1.x/#'
         assert self.driver.current_url == 'https://palletsprojects.com/p/flask/'
 
-    @allure.story('Тест на нажатие кнопки Linux->Download Centos7, баг - ссылка на Fedora, а не Centos!')
+    @allure.story('Тест на нажатие кнопки Linux->Download Centos7.')
+    @allure.title('Баг - ссылка на Fedora, а не Centos!')
     def test_main_page_go_to_linux_centos_page(self, ui_report, login):
         """
         Что тестирует - проверяет, что пользователь после нажатия на кнопку Download Centos7 попадает на страницу
