@@ -48,7 +48,7 @@ def repo_root():
 
 def pytest_configure(config):
     if sys.platform.startswith('win'):
-        base_test_dir = config['logs_dir']
+        base_test_dir = config.logs_dir
     else:
         base_test_dir = '/tmp/tests'
 
