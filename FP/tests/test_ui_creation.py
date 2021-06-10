@@ -63,7 +63,9 @@ class TestCreateUser(BaseCase):
         ]
     }
 
-    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}.')
+    @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. Баг '
+                  '- не проставляються данные в БД о входе на главную страницу!')
+    @allure.title('Баг - не проставляються данные в БД о входе на главную страницу!')
     def test_basic(self, ui_report, db_client, username, password, email):
         """
         Что тестирует - проверяет, что пользователь может зарегистрироваться с валидными данными;
