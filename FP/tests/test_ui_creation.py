@@ -4,6 +4,7 @@ from faker import Faker
 from tests.base import BaseCase
 from data import get_random_string
 from faker.providers import internet
+from sql_models.models import TestUsers
 
 
 def pytest_generate_tests(metafunc):
@@ -63,7 +64,7 @@ class TestCreateUser(BaseCase):
     }
 
     @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}.')
-    def test_basic(self, ui_report, username, password, email):
+    def test_basic(self, ui_report, db_client, username, password, email):
         """
         Что тестирует - проверяет, что пользователь может зарегистрироваться с валидными данными;
         Шаги выполнения - ввод данных в поля на странице регистрации, проверка страницы;
@@ -72,6 +73,10 @@ class TestCreateUser(BaseCase):
         self.auth_page.go_to_create_account_page()
         self.reg_page.create_user(username, password, email)
         assert self.driver.current_url == self.main_page.url
+        db_res = db_client.session.query(TestUsers).filter(TestUsers.username == username).first()
+        db_client.session.commit()
+        assert db_res.active == 1
+        assert db_res.start_active_time is not None
 
     @allure.story('Тест на добавление пользователя c username: {username}, password: {password}, email: {email}. Без '
                   'галочки в чекбоксе.')
