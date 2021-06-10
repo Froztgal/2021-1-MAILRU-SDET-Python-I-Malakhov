@@ -1,5 +1,3 @@
-import time
-
 import pytest
 from _pytest.fixtures import FixtureRequest
 from ui.pages.base_page import BasePage

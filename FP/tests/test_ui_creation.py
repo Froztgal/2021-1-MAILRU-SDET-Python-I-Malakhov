@@ -1,6 +1,9 @@
-import pytest
 import allure
+import pytest
+from faker import Faker
 from tests.base import BaseCase
+from data import get_random_string
+from faker.providers import internet
 
 
 def pytest_generate_tests(metafunc):
@@ -15,9 +18,7 @@ def pytest_generate_tests(metafunc):
 @allure.feature('Тесты на создание пользователей на странице регистрации.')
 @pytest.mark.UI  # skip / UI
 class TestCreateUser(BaseCase):
-    from data import get_random_string
-    from faker import Faker
-    from faker.providers import internet
+
     fake = Faker()
     fake.add_provider(internet)
 

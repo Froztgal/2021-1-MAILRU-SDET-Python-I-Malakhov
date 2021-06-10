@@ -121,6 +121,7 @@ def api_client():
 
 @pytest.fixture(scope='class', autouse=True)
 def clear_table(db_client, my_builder):
+    logging.getLogger('test').info('truncating test_users...')
     db_client.execute_query('truncate test_users;', False)
     my_builder.create_user('superuser', 'superuser', 'superuser@gmail.com')
 
