@@ -58,7 +58,7 @@ def pytest_configure(config):
         os.makedirs(base_test_dir)
 
     mysql_client = MysqlClient()
-    mysql_client.recreate_db()
+    # mysql_client.recreate_db()
     mysql_client.connect()
     mysql_client.create_base_table()
     mysql_client.connection.close()
