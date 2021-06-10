@@ -14,6 +14,7 @@ def pytest_addoption(parser):
     parser.addoption('--selenoid', action='store_true')
     parser.addoption('--vnc', action='store_true')
     parser.addoption('--enable_video', action='store_true')
+    parser.addoption('--logs_dir', default='C:\\tests')
 
 
 @pytest.fixture(scope='session')
@@ -33,9 +34,11 @@ def config(request):
         vnc = False
         enable_video = False
     browser = request.config.getoption('--browser')
+    logs_dir = request.config.getoption('--logs_dir')
     debug_log = request.config.getoption('--debug_log')
     enable_video = request.config.getoption('--enable_video')
-    return {'browser': browser, 'debug_log': debug_log, 'selenoid': selenoid, 'vnc': vnc, 'enable_video': enable_video}
+    return {'browser': browser, 'logs_dir': logs_dir, 'debug_log': debug_log, 'selenoid': selenoid, 'vnc': vnc,
+            'enable_video': enable_video}
 
 
 @pytest.fixture(scope='session')
@@ -45,7 +48,7 @@ def repo_root():
 
 def pytest_configure(config):
     if sys.platform.startswith('win'):
-        base_test_dir = 'G:\\allure-results'
+        base_test_dir = config['logs_dir']
     else:
         base_test_dir = '/tmp/tests'
 
