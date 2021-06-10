@@ -67,8 +67,8 @@ class TestLogin(BaseCase):
         assert self.driver.current_url == self.auth_page.url
         assert self.auth_page.get_error_text() == 'Ваша учетная запись заблокирована'
 
-    @allure.story('Тест на логин пользователя c username: {username}, password: {password}, email: {email}.')
-    @allure.title('Баг - пользователь с невалидной почтой может войти, если такая почта как то попала в БД!')
+    @allure.story('Тест на логин пользователя c username: {username}, password: {password}, email: {email}. Баг - '
+                  'пользователь с невалидной почтой может войти, если такая почта как то попала в БД!')
     def test_login_data(self, ui_report, my_builder, username, password, email, valid):
         """
         Что тестирует - проверяет, что пользователь существующий в БД, может авторизоваться со своими данными;
