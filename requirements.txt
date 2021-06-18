@@ -1,6 +1,10 @@
-pytest
+pytest~=6.2.2
 pytest-xdist
-selenium
+selenium~=3.141.0
 allure-pytest
 webdriver-manager
-requests
+requests~=2.25.1
+SQLAlchemy~=1.4.14
+Faker~=8.2.1
+Flask~=2.0.0
+Appium-Python-Client~=1.1.0
